@@ -1,0 +1,115 @@
+<html>
+<head>
+<style>
+	body {
+		background-color: rgb(218, 7, 7);
+		font-family:Verdana,Arial;
+	}
+	#title {
+		width: 250px;
+		float:left;
+	}
+	#title h1 {
+		text-align:center;
+	}
+	#main {
+		display:block;
+		display:relative; 
+		width:800px;
+		height:600px;
+		margin:auto;
+	}	
+	#getInvolved {
+		background-color:beige;
+		border-radius:2px;
+		padding:5px;
+	}
+	.clearfix {
+		clear:both;
+	}
+</style>
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script>
+// http://stackoverflow.com/a/21574562/4187005
+function fillTextMultiLine(ctx, text, x, y) {
+  var lineHeight = ctx.measureText("M").width * 2;
+  var lines = text.split("\n");
+  for (var i = 0; i < lines.length; ++i) {
+    ctx.fillText(lines[i], x, y);
+    y += lineHeight;
+  }
+}
+
+// layers str2 over str1
+function layerText(str1, str2){
+	out = "";
+	for(var i=0;i<str2.length;i++){
+		if(str2[i] == " "){
+			out += str1[i];
+		}else{
+			out += str2[i];
+		}
+	}
+	return out;
+}
+
+	var buf = "";
+	var title = "";
+	var comingSoon = "";
+	var box = "";
+	var show = function(){
+		var canvas = document.getElementById("main");
+		var ctx = canvas.getContext("2d");
+		
+		ctx.fillStyle = "black";
+    ctx.fillRect(0,0,800,600);
+		
+		ctx.font = "bold 16.6px Courier New";
+		ctx.fillStyle = "blue";
+		ctx.textAlign = "left";
+		fillTextMultiLine(ctx, buf, 0,15);
+	}
+	function showTitle(){
+				buf = layerText(box, title);
+				show();
+				setTimeout(showComingSoon, 3000);
+	}
+	function showComingSoon(){
+				buf = layerText(box, comingSoon);
+				show();
+				setTimeout(showTitle, 3000)
+	}
+	$.get('box.txt', function(response){
+		box=response;
+		$.get('title.txt', function(response){
+			title=response;
+			$.get('comingSoon.txt', function(response){
+				comingSoon=response;
+				showTitle();
+			});
+		});
+	});
+</script>
+</head>
+<body>
+	<div id="title">
+		<h1>Pokemon<br/>
+		Ash * Key 2</h1>
+		<div id=getInvolved>
+			<p style="font-style:italic">The Pokemon inspired
+			ASCII rendered MMORPG</p>
+			<h2>Get Involved</h2>
+			<p>
+				Development is greatly accelerated with the help of people! We need programmers, and artists!
+				Send me a message if you want to help out! <a href="mailto:simon@simonmikulcik.com">simon@simonmikulcik.com</a>
+			</p>
+			<p>
+				If you are shy, feel free to check out the code anyway:
+				<p><a href="https://github.com/smikulcik/pokemon-ash-key-2">Github</a></p>
+				And the Development Organization Strategy:
+				<p><a href="https://trello.com/b/1g1Ng6P8">Trello</a><p>
+		</div>
+	</div>
+	<canvas id="main" width=800 height=600></canvas>
+</body>
+</html>
