@@ -17,6 +17,7 @@
 		display:block;
 		display:relative; 
 		margin:auto;
+		height: 90%;
 	}	
 	#getInvolved {
 		background-color:beige;
@@ -31,56 +32,46 @@
 <script src="asciiRPG.js"></script>
 <script>
 	var game;
+	var playerString;
+	
 	$(function(){
-		game = new Game(document.getElementById("main"));
-		var terrain = generateTerrain(80, 30, 44);
+		$.get("player.txt", function(response){
+			playerString = response;
+		}).then(function(){
+	
+			game = new Game(document.getElementById("main"));
+			var terrain = generateTerrain(80, 30, 44);
+			
+			
+			var box = new GameObject();
+			box.sprite.image = generateBox(10, 5);
+			box.sprite.map = generateBox(10, 5);
+			box.x = 20;
+			box.y = 10;
+			game.room.add(box);
+			
+			box = new GameObject();
+			box.sprite.image = generateBox(30, 5);
+			box.sprite.map = generateBox(30, 5);
+			box.x = -20;
+			box.y = -10;
+			game.room.add(box);
+			
+			for(var i=0;i<10;i+=2){
+				for(var j=0;j<9;j+=2){
+					var tile = new GameObject();
+					tile.sprite.image = generateTile(".");
+					tile.sprite.map = generateTile(".");
+					tile.x = i*10;
+					tile.y = j*5;
+					game.room.add(tile);
+				}
+			}
 		
-	
-	var box = new GameObject();
-	box.sprite.image = generateBox(10, 5);
-	box.sprite.map = generateBox(10, 5);
-	box.x = 20;
-	box.y = 10;
-	game.room.add(box);
-	
-	box = new GameObject();
-	box.sprite.image = generateBox(30, 5);
-	box.sprite.map = generateBox(30, 5);
-	box.x = -20;
-	box.y = -10;
-	game.room.add(box);
-	
-	for(var i=0;i<10;i+=2){
-		for(var j=0;j<9;j+=2){
-			var tile = new GameObject();
-			tile.sprite.image = generateTile(".");
-			tile.sprite.map = generateTile(".");
-			tile.x = i*10;
-			tile.y = j*5;
-			game.room.add(tile);
-		}
-	}
-	
-		
-		game.run();
+			
+			game.run();
+		});
 	});
-
-$(document).keypress(function(event){
-	switch(event.charCode){
-		case 119: //up
-			game.player.y -= 1;
-			break;
-		case 115: //down
-			game.player.y += 1;
-			break;
-		case 97: //left
-			game.player.x -= 2;
-			break;
-		case 100: //right
-			game.player.x += 2;
-			break;
-	}
-});
 </script>
 </head>
 <body>
