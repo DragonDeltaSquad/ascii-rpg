@@ -6,7 +6,8 @@ function fillTextMultiLine(ctx, text, x, y) {
   var lines = text.split("\n");
   for (var i = 0; i < lines.length; ++i) {
     ctx.fillText(lines[i], x, y);
-    y += lineHeight;
+    ctx.strokeText(lines[i], x, y);
+		y += lineHeight;
   }
 }
 
@@ -87,7 +88,7 @@ Compositor.prototype.render = function(){
     ctx.fillRect(0,0,1000,900);
 		
 		//ctx.font = "bold 16.6px Courier New";
-		ctx.font = "bold 16.6px Courier New";
+		ctx.font = "16.6px Courier New";
 		ctx.fillStyle = "black";
 		ctx.textAlign = "left";
 		fillTextMultiLine(ctx, this.frame, 0, 13);
