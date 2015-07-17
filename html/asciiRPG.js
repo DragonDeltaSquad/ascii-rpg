@@ -132,9 +132,6 @@ var Sprite = function(){
 	this.map = "## ##";
 };
 
-Sprite.prototype.update = function(frameNum){
-};
-
 Sprite.prototype.getImage = function(){
 	return this.image;
 };
@@ -214,27 +211,70 @@ var Room = function(){
 
 Room.prototype.add = function(gameObject){
 	this.gameObjects.push(gameObject);
+	gameObject.room = this;
 };
 
-Room.prototype.update = function(frameNum){
+Room.prototype.isAvailable = function(actor, x, y, fromDirection){
 	for(var i=0;i<this.gameObjects.length;i++){
-		this.gameObjects[i].update(frameNum);
+		if( !this.gameObjects[i].mayWalkOn(actor,x, y, fromDirection) ||
+				!this.gameObjects[i].mayWalkOff(actor,x, y, fromDirection)){
+			return false;
+		}
 	}
-};
+	return true;
+}
+
 
 var GameObject = function(){
-	this.x = 10*4;
-	this.y = 20;
+	this.x = 0;
+	this.y = 0;
+	this.width = 10; // in chars
+	this.height = 5;
+
 	this.sprite = new Sprite();
 	this.sprite.image = generateTerrain(10, 5, 40);
 	this.sprite.map = this.sprite.image;
 	
 	this._moving = false;
+	this.room = null;
+	
+	this.mayEnterDirections = [UP,DOWN,LEFT,RIGHT];
+	this.mayExitDirections = [UP,DOWN,LEFT,RIGHT];
+	
+	this.setSolid(true);
 };
 
-GameObject.prototype.update = function(frameNum){
-	this.sprite.update(frameNum);
+
+GameObject.prototype.setSolid = function(value){
+	if(value)
+		this.mayEnterDirections = [];
+	else
+		this.mayEnterDirections = [UP,DOWN,LEFT,RIGHT];
 };
+
+GameObject.prototype.mayWalkOn = function(actor, x, y, fromDirection){
+	// if we cover that square and players may not enter from that direction
+	if(this.covers(x, y) && $.inArray(fromDirection, this.mayEnterDirections) === -1)
+			return false;
+	return true;
+};
+
+GameObject.prototype.mayWalkOff = function(actor, x, y, toDirection){
+	// if we cover that square and players may not enter from that direction
+	if(this.covers(actor.x, actor.y) && $.inArray(toDirection, this.mayExitDirections) === -1)
+			return false;
+	return true;
+};
+
+GameObject.prototype.covers = function(x, y){
+	if( x >= this.x && x < this.x + this.width &&
+			y >= this.y && y < this.y + this.height){
+		return true;
+	}
+	return false;
+};
+
+
 
 var Actor = function(imageString, mapString){
 	GameObject.call(this);
@@ -266,21 +306,48 @@ Actor.prototype.setMoving = function(value){
 	}
 };
 
+Actor.prototype.canMove = function(direction){
+			switch(direction){
+				case UP:
+					return this.room.isAvailable(this, this.x, this.y - 5, direction);
+					break;
+				case DOWN:
+					return this.room.isAvailable(this, this.x, this.y + 5, direction);
+					break;
+				case LEFT:
+					return this.room.isAvailable(this, this.x - 10, this.y, direction);
+					break;
+				case RIGHT:
+					return this.room.isAvailable(this, this.x + 10, this.y, direction);
+					break;
+			}
+			return false;
+};
+
 Actor.prototype.move = function(direction, _countdown){
+	// recursively move 1 tile for smooth transition
+
 	var actor = this;
 	if(!actor._moving || _countdown != undefined){
-	
-		if(_countdown === undefined){
-			_countdown = 5;
-		}
 		
-		actor.setMoving(true);
+		
+		//change direction if needed immediately
 		if(this.direction !== direction){
+			actor.setMoving(true);
 			this.setDirection(direction);
 			setTimeout(function(){actor.setMoving(false);}, 50);
 			return;
 		}
-		if(_countdown > 0){
+	
+		if(_countdown === undefined){ //first call to move
+			if(!this.canMove(direction))
+				return;
+			_countdown = 5;
+		}
+		
+		//move if allowed
+		actor.setMoving(true);
+		if(_countdown > 0){ // general case
 			switch(direction){
 				case UP:
 					game.player.y -= 1;
@@ -296,7 +363,7 @@ Actor.prototype.move = function(direction, _countdown){
 					break;
 			}
 			setTimeout(function(){actor.move(direction, _countdown - 1)}, 50);
-		}else{
+		}else{  // base case
 			actor.setMoving(false);
 		}
 	}
@@ -309,10 +376,6 @@ var Game = function(canvasElement){
 	
 	this.compositor = new Compositor(canvasElement);
 	this.frameNum = 0;
-};
-
-Game.prototype.update = function(frameNum){
-	this.room.update(frameNum);
 };
 
 Game.prototype.draw = function(){
@@ -332,7 +395,6 @@ Game.prototype.draw = function(){
 };
 
 Game.prototype.run = function(){
-	this.update(this.frameNum);
 	this.draw();
 	this.frameNum += 1;
 	var g = this;
