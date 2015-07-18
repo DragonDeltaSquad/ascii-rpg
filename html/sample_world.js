@@ -197,11 +197,11 @@ var pkmnASCII = function(){
 			{
 				name:"Pallet Town",
 				tiles: [
-					[wall, wall, wall, wall, wall, wall, wall, empty, empty, empty],
-					[wall, empty, grass, grass, empty, empty, wall, empty, empty, empty],
-					[wall, empty, grass, grass, empty, empty, wall, empty, empty, empty],
-					[wall, empty, grass, grass, grass, spinner, wall, empty, empty, empty],
-					[wall, empty, grass, grass, grass, grass, wall, wall, wall, wall],
+					[wall, wall, wall, wall, wall, wall, wall, water, water, wall],
+					[wall, empty, grass, grass, empty, empty, wall, water, water, wall],
+					[wall, empty, grass, grass, empty, empty, wall, water, water, wall],
+					[wall, empty, grass, grass, grass, spinner, wall, water, water, wall],
+					[wall, empty, grass, grass, grass, grass, wall, water, water, wall],
 					[wall, empty, grass, grass, grass, grass, ledgeR, water, water, wall],
 					[wall, empty, grass, grass, grass, grass, ledgeR, water, water, wall],
 					[wall, empty, grass, grass, empty, empty, ledgeR, water, water, wall],
