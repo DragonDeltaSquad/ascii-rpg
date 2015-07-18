@@ -49,6 +49,7 @@ var sample_data = {
 			},
 			properties: {
 				solid:true,
+				description: "It's a wall.",
 			},
 		},
 		water: {
@@ -78,35 +79,7 @@ var sample_data = {
 			},
 			properties: {
 				solid:true,
-			},
-		},
-		water: {
-			name:"water",
-			sprite:{
-				states:[
-					{frames: [
-						"      ;   \n"+
-						"       `.,\n"+
-						"`;,       \n"+
-						"  ;,      \n"+
-						"   `-..   \n",
-						
-						"   ;      \n"+
-						"    `.,   \n"+
-						"       `;,\n"+
-						",        ;\n"+
-						"`-..      \n",
-						
-						";         \n"+
-						" `.,      \n"+
-						"    `;,   \n"+
-						"      ;,  \n"+
-						".      `-.\n",
-					], frameRate: 1.5},
-				],
-			},
-			properties: {
-				solid:true,
+				description: "It's water.",
 			},
 		},
 		ledgeR: {
@@ -157,6 +130,7 @@ var sample_data = {
 			},
 			properties: {
 				solid:true,
+				description: "It's Spinner.",
 			},
 		}
 	},

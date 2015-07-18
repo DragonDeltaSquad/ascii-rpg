@@ -283,6 +283,14 @@ Room.prototype.isAvailable = function(actor, x, y, fromDirection){
 	}
 	return true;
 }
+Room.prototype.objectAt = function(x, y){
+	for(var i=0;i<this.gameObjects.length;i++){
+		if(this.gameObjects[i].x == x && this.gameObjects[i].y == y){
+			return this.gameObjects[i];
+		}
+	}
+	return null;
+}
 
 
 var GameObject = function(game_object_data){
@@ -296,6 +304,8 @@ var GameObject = function(game_object_data){
 	
 	this.mayEnterDirections = [UP,DOWN,LEFT,RIGHT];
 	this.mayExitDirections = [UP,DOWN,LEFT,RIGHT];
+
+	this.description = "";
 	
 	if(game_object_data !== undefined){
 		this.sprite = new AnimatedSprite(game_object_data.sprite);
@@ -339,6 +349,10 @@ GameObject.prototype.covers = function(x, y){
 	}
 	return false;
 };
+
+GameObject.prototype.inspect = function(actor){
+		return this.description;
+}
 
 
 var Actor = function(actor_data){
@@ -453,8 +467,36 @@ Actor.prototype.handleInput = function(key){
 			this.move(RIGHT);
 			break;
 		case KeyEvent.DOM_VK_E:
-			this.world.hud.setMessage("LOOK");
+			this.inspect();
 	}
+};
+
+Actor.prototype.inspect = function(){
+			var x;
+			var y;
+			switch(this.direction){
+				case UP:
+					x = this.x;
+					y = this.y - TILE_HEIGHT;
+					break;
+				case DOWN:
+					x = this.x;
+					y = this.y + TILE_HEIGHT;
+					break;
+				case LEFT:
+					x = this.x - TILE_WIDTH;
+					y = this.y;
+					break;
+				case RIGHT:
+					x = this.x + TILE_WIDTH;
+					y = this.y;
+					break;
+			}
+			var go = this.room.objectAt(x, y);
+			if(go !== null)
+				this.world.hud.setMessage(
+					go.inspect(this)
+				);
 };
 
 
@@ -571,7 +613,6 @@ HUD.prototype.handleInput = function(key){
 			this.scrollMessage();
 			break;
 		default:
-			console.log(key);
 			break;
 	}
 };
@@ -586,12 +627,18 @@ $(document).keydown(function(event){
 		case 83: //down
 		case 65: //left
 		case 68: //right
-		default:
 			if(keyPressers[event.keyCode]){
 				return;
 			}
 			game.handleInput(event.keyCode);
 			keyPressers[event.keyCode] = setInterval(function(){game.handleInput(event.keyCode);}, 100);
+			break;
+		default:
+			if(keyPressers[event.keyCode]){
+				return;
+			}
+			game.handleInput(event.keyCode);
+			keyPressers[event.keyCode] = true;
 			break;
 	}
 });
@@ -602,8 +649,10 @@ $(document).keyup(function(event){
 		case 83: //down
 		case 65: //left
 		case 68: //right
-		default:
 			clearInterval(keyPressers[event.keyCode]);
+			keyPressers[event.keyCode] = null;
+			break;
+		default:
 			keyPressers[event.keyCode] = null;
 			break;
 	}
