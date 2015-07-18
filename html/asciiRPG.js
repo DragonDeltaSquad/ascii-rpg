@@ -66,6 +66,9 @@ function generateTile(character){
 var SCREEN_WIDTH = 100;
 var SCREEN_HEIGHT = 45;
 
+var SCREEN_PX_WIDTH = 1000;
+var SCREEN_PX_HEIGHT = 900;
+
 var TILE_HEIGHT = 5;
 var TILE_WIDTH = 10;
 
@@ -85,7 +88,7 @@ Compositor.prototype.render = function(){
 		var ctx = this.el.getContext("2d");
 		
 		ctx.fillStyle = "white";
-    ctx.fillRect(0,0,1000,900);
+    ctx.fillRect(0,0,SCREEN_PX_WIDTH,SCREEN_PX_HEIGHT);
 		
 		//ctx.font = "bold 16.6px Courier New";
 		ctx.font = "16.6px Courier New";
@@ -447,3 +450,27 @@ $(document).keyup(function(event){
 	}
 });
 
+
+var parseSpriteSheet = function(imageString){
+	var states = [];
+	var grid = imageString.split("\n");
+	
+	//iterate over each frame 
+	for(var state_i=0;state_i < grid.length-1; state_i += TILE_HEIGHT){
+		var row = grid[state_i];
+		states.push([]);
+		for(var frame_i=0;frame_i < row.length-1; frame_i += TILE_WIDTH){
+			states[state_i/TILE_HEIGHT].push([]);
+			
+			// now parse a single frame
+			for(var y = state_i; y < state_i + TILE_HEIGHT; y++){
+				var line = "";
+				for(var x = frame_i; x < frame_i + TILE_WIDTH; x++){
+					line += grid[y][x];
+				}
+				states[state_i/TILE_HEIGHT][frame_i/TILE_WIDTH] += line + "\n";
+			}
+		}
+	}
+	return states;
+};
