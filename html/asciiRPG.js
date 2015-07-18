@@ -143,13 +143,24 @@ Sprite.prototype.getMap = function(){
 	return this.map;
 };
 
-var AnimatedSprite = function(imageString, mapString){
+var AnimatedSprite = function(sprite_data, options){
 	Sprite.call(this);
-	this.fromString(imageString, mapString);
 	
-	this.state = 0;
-	this.frame = 1;
-	var cycleInterval = null;
+	this.image = sprite_data.states;
+	this.map = sprite_data.states;
+	
+	this.frameDelay = 170;
+	this.cycleInterval = null;
+	this.frame = 0;
+	this.setState(0);
+	
+	if(options !== undefined){
+		if(options.autostart !== false){
+			this.start();
+		}
+	}else{
+		this.start();
+	}
 };
 
 AnimatedSprite.prototype = new Sprite();
@@ -185,31 +196,54 @@ AnimatedSprite.prototype.fromString = function(imageString, mapString){
 };
 
 AnimatedSprite.prototype.getImage = function(){
-	return this.image[this.state][this.frame];
+	return this.image[this.state].frames[this.frame];
 };
 
 AnimatedSprite.prototype.getMap = function(){
-	return this.map[this.state][this.frame];
+	return this.image[this.state].frames[this.frame];
+};
+
+AnimatedSprite.prototype.setState = function(state){
+	if(state >= 0 && state < this.image.length){
+		this.state = state;
+		this.frameDelay = 1000/this.image[this.state].frameRate;
+	}
 };
 
 AnimatedSprite.prototype.cycle = function(){
-	this.frame = (this.frame + 1)%4;
+	this.frame = (this.frame + 1)%this.image[this.state].frames.length;
 };
 AnimatedSprite.prototype.start = function(){
 	var sprite = this;
-	if(this.cycleInterval === null)
-		this.cycleInterval = setInterval(function(){sprite.cycle();}, 170);
+	if(this.cycleInterval === null){
+		this.cycleInterval = setInterval(function(){sprite.cycle();}, sprite.frameDelay);
+	}
 };
 AnimatedSprite.prototype.stop = function(){
 	clearInterval(this.cycleInterval);
 	this.cycleInterval = null;
-	this.frame = 1; // standing position
+	this.frame = 1%this.image[this.state].frames.length; // standing position
 };
 
 
-var Room = function(){
+var Room = function(room_data){
 	this.gameObjects = [];
-	this.frameNum = 0;
+
+	this.tiles = [];
+	for(var row_i=0;row_i < room_data.tiles.length; row_i++){
+		var row = room_data.tiles[row_i];
+		this.tiles.push([]);
+		for(var col_i=0;col_i < row.length; col_i++){
+			var go_data = row[col_i];
+			var go = new GameObject(go_data);
+			go.y = row_i*TILE_HEIGHT;
+			go.x = col_i*TILE_WIDTH;
+			this.add(go);
+			this.tiles[row_i].push(go);
+		}
+	}
+	this.player = new Actor(room_data.players[0]);
+	this.add(this.player);
 };
 
 Room.prototype.add = function(gameObject){
@@ -228,15 +262,11 @@ Room.prototype.isAvailable = function(actor, x, y, fromDirection){
 }
 
 
-var GameObject = function(){
+var GameObject = function(game_object_data){
 	this.x = 0;
 	this.y = 0;
 	this.width = 10; // in chars
 	this.height = 5;
-
-	this.sprite = new Sprite();
-	this.sprite.image = generateTerrain(10, 5, 40);
-	this.sprite.map = this.sprite.image;
 	
 	this._moving = false;
 	this.room = null;
@@ -244,7 +274,17 @@ var GameObject = function(){
 	this.mayEnterDirections = [UP,DOWN,LEFT,RIGHT];
 	this.mayExitDirections = [UP,DOWN,LEFT,RIGHT];
 	
-	this.setSolid(true);
+	if(game_object_data !== undefined){
+		this.sprite = new AnimatedSprite(game_object_data.sprite);
+
+		if(game_object_data.properties !== undefined){
+			if(game_object_data.properties.solid === true)
+				this.setSolid(true);
+			$.extend(this, game_object_data.properties);
+		}
+	}else{
+		this.sprite = new Sprite();
+	}
 };
 
 
@@ -279,10 +319,12 @@ GameObject.prototype.covers = function(x, y){
 
 
 
-var Actor = function(imageString, mapString){
-	GameObject.call(this);
+var Actor = function(actor_data){
+	GameObject.call(this, actor_data.player);
 	
-	this.sprite = new AnimatedSprite(imageString, mapString);
+	this.sprite = new AnimatedSprite(actor_data.player.sprite);
+	this.x = actor_data.location[0]*TILE_WIDTH;
+	this.y = actor_data.location[1]*TILE_HEIGHT;
 	
 	this.direction = DOWN;
 	
@@ -293,7 +335,7 @@ Actor.prototype = new GameObject();
 
 Actor.prototype.setDirection = function(direction){
 	this.direction = direction;
-	this.sprite.state = direction;
+	this.sprite.setState(direction);
 };
 Actor.prototype.setMoving = function(value){
 	var actor = this;
@@ -372,21 +414,65 @@ Actor.prototype.move = function(direction, _countdown){
 	}
 };
 
-var Game = function(canvasElement){
-	this.player = new Actor(playerString, playerString);
-	this.room = new Room();
-	this.room.add(this.player);
-	
-	this.compositor = new Compositor(canvasElement);
-	this.frameNum = 0;
+Actor.prototype.handleInput = function(key){
+	//basic WASD movement
+	switch(key){
+		case 87: //up
+			this.move(UP);
+			break;
+		case 83: //down
+			this.move(DOWN);
+			break;
+		case 65: //left
+			this.move(LEFT);
+			break;
+		case 68: //right
+			this.move(RIGHT);
+			break;
+	}
 };
 
-Game.prototype.draw = function(){
+
+var World = function(canvasElement, world_data){
+
+	if(world_data === undefined){
+		world_data = {
+			name:"New World",
+			rooms: [
+				{
+					name:"Room1",
+					tiles: [
+					],
+					players: [{
+						player: {
+							name:"player",
+							sprite: {
+								states: [{
+									frames: [
+										"   ___    \n  /mmm\\   \n  \\@,@/   \n q mmm p  \n   n n    \n",
+									],
+									frameRate: 1.5,
+								}]
+							}, 
+						}, 
+						location: [0,0]
+					}]
+				},
+			]
+		};
+	}
+	this.room = new Room(world_data.rooms[0]);
+	this.player = this.room.player;
+	
+	this.compositor = new Compositor(canvasElement);
+};
+
+World.prototype.draw = function(){
 	var viewport_x = this.player.x - SCREEN_WIDTH/2;
-	var viewport_y = this.player.y - Math.floor(SCREEN_HEIGHT/2);
+	var viewport_y = this.player.y - Math.floor(SCREEN_HEIGHT/2) - 3;
 
 	this.compositor.clearFrame();
-	for(var i=this.room.gameObjects.length-1;i>=0;i--){
+	for(var i=0; i < this.room.gameObjects.length;i++){
 		this.compositor.add(
 			this.room.gameObjects[i].sprite.getImage(),
 			this.room.gameObjects[i].sprite.getMap(),
@@ -397,31 +483,15 @@ Game.prototype.draw = function(){
 	this.compositor.render();
 };
 
-Game.prototype.run = function(){
-	this.draw();
-	this.frameNum += 1;
+World.prototype.run = function(){
 	var g = this;
+	g.draw();
 	setTimeout(function(){g.run()}, 1000/FPS);
 };
 
-var keyPressers = {};
 
-function inputHandler(key){
-	switch(key){
-		case 87: //up
-			game.player.move(UP);
-			break;
-		case 83: //down
-			game.player.move(DOWN);
-			break;
-		case 65: //left
-			game.player.move(LEFT);
-			break;
-		case 68: //right
-			game.player.move(RIGHT);
-			break;
-	}
-}
+// if WASD is down, mash move every 100ms (so we have regular continued movement)
+var keyPressers = {};
 
 $(document).keydown(function(event){
 	switch(event.keyCode){
@@ -432,8 +502,8 @@ $(document).keydown(function(event){
 			if(keyPressers[event.keyCode]){
 				return;
 			}
-			inputHandler(event.keyCode);
-			keyPressers[event.keyCode] = setInterval(function(){inputHandler(event.keyCode);}, 100);
+			game.player.handleInput(event.keyCode);
+			keyPressers[event.keyCode] = setInterval(function(){game.player.handleInput(event.keyCode);}, 100);
 			break;
 	}
 });
@@ -474,3 +544,9 @@ var parseSpriteSheet = function(imageString){
 	}
 	return states;
 };
+
+var asciiRPG = {
+	load: function(canvasEl, world_data){
+			return new World(canvasEl, world_data);
+	}
+}
