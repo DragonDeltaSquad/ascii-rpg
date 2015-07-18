@@ -25,7 +25,10 @@ function generateTerrain(width, height, startingChar){
 	return out;
 }
 
-function generateBox(width, height){
+function generateBox(width, height, fillChar){
+	if(fillChar === undefined)
+		fillChar = " ";
+
 	var out = "";
 	for(var row=0;row<height;row++){
 		var line = "";
@@ -40,7 +43,7 @@ function generateBox(width, height){
 			else if(col == 0 || col == width - 1)
 				line += "|";
 			else
-				line += " ";
+				line += fillChar;
 		}
 		line += "\n";
 		out += line;
@@ -61,6 +64,29 @@ function generateTile(character){
 	return out;
 }
 
+function layerText(base, content, map, x, y){
+	var img = content.split("\n");
+	var mapImg = map.split("\n");
+	var baseImg = base.split("\n");
+	var out = "";
+	for(var row=0;row<baseImg.length;row++){
+		var line = "";
+		for(var col=0;col<baseImg[row].length;col++){
+			var img_row = row - y;
+			var img_col = col - x;
+			if(img_row >= 0 && img_row < mapImg.length &&
+				img_col >= 0 && img_col < mapImg[0].length &&
+				mapImg[img_row] != "" && 
+				mapImg[img_row][img_col] != " ")
+				line += img[img_row][img_col];
+			else
+				line += baseImg[row][col];
+		}
+		line += "\n";
+		out += line;
+	}
+	return out;
+};
 
 
 var SCREEN_WIDTH = 100;
@@ -82,6 +108,7 @@ var UP = 3;
 var Compositor = function(canvasElement){
 	this.el = canvasElement;
 	this.clearFrame();
+	this.textOverlays = [];
 };
 
 Compositor.prototype.render = function(){
@@ -90,11 +117,17 @@ Compositor.prototype.render = function(){
 		ctx.fillStyle = "white";
     ctx.fillRect(0,0,SCREEN_PX_WIDTH,SCREEN_PX_HEIGHT);
 		
-		//ctx.font = "bold 16.6px Courier New";
 		ctx.font = "16.6px Courier New";
 		ctx.fillStyle = "black";
 		ctx.textAlign = "left";
 		fillTextMultiLine(ctx, this.frame, 0, 13);
+		
+		ctx.font = "45px Courier New";
+		ctx.textAlign = "left";
+		for(var t=0;t<this.textOverlays.length;t++){
+			var textObj = this.textOverlays[t];
+			fillTextMultiLine(ctx, textObj.text, textObj.x*9.86, 13 + textObj.y*20.5 );
+		}
 };
 
 Compositor.prototype.clearFrame = function(){
@@ -105,29 +138,19 @@ Compositor.prototype.clearFrame = function(){
 		}
 		this.frame += "\n";
 	}
+	this.textOverlays = [];
 };
 
 Compositor.prototype.add = function(content, map, x, y){
-	var img = content.split("\n");
-	var mapImg = map.split("\n");
-	var frameImg = this.frame.split("\n");
-	this.frame = "";
-	for(var row=0;row<SCREEN_HEIGHT;row++){
-		var line = "";
-		for(var col=0;col<SCREEN_WIDTH;col++){
-			var img_row = row - y;
-			var img_col = col - x;
-			if(img_row >= 0 && img_row < mapImg.length &&
-				img_col >= 0 && img_col < mapImg[0].length &&
-				mapImg[img_row] != "" && 
-				mapImg[img_row][img_col] != " ")
-				line += img[img_row][img_col];
-			else
-				line += frameImg[row][col];
-		}
-		line += "\n";
-		this.frame += line;
-	}
+	this.frame = layerText(this.frame, content, map, x, y);
+};
+
+Compositor.prototype.addText = function(text, x, y){
+	this.textOverlays.push({
+		'text': text,
+		'x': x,
+		'y': y,
+	});
 };
 
 var Sprite = function(){
@@ -318,7 +341,6 @@ GameObject.prototype.covers = function(x, y){
 };
 
 
-
 var Actor = function(actor_data){
 	GameObject.call(this, actor_data.player);
 	
@@ -329,6 +351,7 @@ var Actor = function(actor_data){
 	this.direction = DOWN;
 	
 	this._moving = false;
+	this.world = null;
 };
 
 Actor.prototype = new GameObject();
@@ -429,6 +452,8 @@ Actor.prototype.handleInput = function(key){
 		case 68: //right
 			this.move(RIGHT);
 			break;
+		case KeyEvent.DOM_VK_E:
+			this.world.hud.setMessage("LOOK");
 	}
 };
 
@@ -463,8 +488,10 @@ var World = function(canvasElement, world_data){
 	}
 	this.room = new Room(world_data.rooms[0]);
 	this.player = this.room.player;
+	this.player.world = this;
 	
 	this.compositor = new Compositor(canvasElement);
+	this.hud = new HUD();
 };
 
 World.prototype.draw = function(){
@@ -480,6 +507,7 @@ World.prototype.draw = function(){
 			this.room.gameObjects[i].y - viewport_y
 		);
 	}
+	this.hud.draw(this.compositor);
 	this.compositor.render();
 };
 
@@ -487,6 +515,65 @@ World.prototype.run = function(){
 	var g = this;
 	g.draw();
 	setTimeout(function(){g.run()}, 1000/FPS);
+};
+
+World.prototype.handleInput = function(key){
+	//basic WASD movement
+	if(this.hud.isUp)
+		this.hud.handleInput(key);
+	else
+		this.player.handleInput(key);
+};
+
+var HUD = function(){
+	this.message = "Ash: Whoa! Where am I?\n"+
+		"Oak: You are in the wonderful world of Pokemon!!";
+	this.isUp = false;
+};
+
+HUD.prototype.draw = function(compositor){
+	//3 chars padding either side with twice char size
+	function addNewlines(str){
+		var charsPerLine = Math.floor((SCREEN_WIDTH - 3*2)/2.65);
+		var lines = str.split('\n');
+		var out = [];
+		for(var i=0;i<lines.length;i++)
+			out = out.concat(lines[i].match(new RegExp('.{1,' + charsPerLine + '}', 'g')))
+		return out.join('\n');
+	}
+	if(this.message !== ""){
+		this.isUp = true;
+		var box = generateBox(SCREEN_WIDTH, TILE_HEIGHT*2);
+		var boxMap = generateBox(SCREEN_WIDTH, TILE_HEIGHT*2, fillChar="#");
+		
+		compositor.addText(addNewlines(this.message), 2, SCREEN_HEIGHT - TILE_HEIGHT*2 + 1);
+
+		compositor.add(box, boxMap, 0, SCREEN_HEIGHT - TILE_HEIGHT*2);
+	}else{
+		this.isUp = false;
+	}
+};
+
+HUD.prototype.scrollMessage = function(){
+	var lines = this.message.split('\n')
+	lines.shift()
+	this.message = lines.join('\n');
+};
+
+HUD.prototype.setMessage = function(message){
+	this.message = message
+};
+
+HUD.prototype.handleInput = function(key){
+	switch(key)
+	{
+		case KeyEvent.DOM_VK_E:
+			this.scrollMessage();
+			break;
+		default:
+			console.log(key);
+			break;
+	}
 };
 
 
@@ -499,11 +586,12 @@ $(document).keydown(function(event){
 		case 83: //down
 		case 65: //left
 		case 68: //right
+		default:
 			if(keyPressers[event.keyCode]){
 				return;
 			}
-			game.player.handleInput(event.keyCode);
-			keyPressers[event.keyCode] = setInterval(function(){game.player.handleInput(event.keyCode);}, 100);
+			game.handleInput(event.keyCode);
+			keyPressers[event.keyCode] = setInterval(function(){game.handleInput(event.keyCode);}, 100);
 			break;
 	}
 });
@@ -514,6 +602,7 @@ $(document).keyup(function(event){
 		case 83: //down
 		case 65: //left
 		case 68: //right
+		default:
 			clearInterval(keyPressers[event.keyCode]);
 			keyPressers[event.keyCode] = null;
 			break;
@@ -549,4 +638,126 @@ var asciiRPG = {
 	load: function(canvasEl, world_data){
 			return new World(canvasEl, world_data);
 	}
+}
+
+
+// http://stackoverflow.com/a/1465409/4187005
+if (typeof KeyEvent == "undefined") {
+    var KeyEvent = {
+        DOM_VK_CANCEL: 3,
+        DOM_VK_HELP: 6,
+        DOM_VK_BACK_SPACE: 8,
+        DOM_VK_TAB: 9,
+        DOM_VK_CLEAR: 12,
+        DOM_VK_RETURN: 13,
+        DOM_VK_ENTER: 14,
+        DOM_VK_SHIFT: 16,
+        DOM_VK_CONTROL: 17,
+        DOM_VK_ALT: 18,
+        DOM_VK_PAUSE: 19,
+        DOM_VK_CAPS_LOCK: 20,
+        DOM_VK_ESCAPE: 27,
+        DOM_VK_SPACE: 32,
+        DOM_VK_PAGE_UP: 33,
+        DOM_VK_PAGE_DOWN: 34,
+        DOM_VK_END: 35,
+        DOM_VK_HOME: 36,
+        DOM_VK_LEFT: 37,
+        DOM_VK_UP: 38,
+        DOM_VK_RIGHT: 39,
+        DOM_VK_DOWN: 40,
+        DOM_VK_PRINTSCREEN: 44,
+        DOM_VK_INSERT: 45,
+        DOM_VK_DELETE: 46,
+        DOM_VK_0: 48,
+        DOM_VK_1: 49,
+        DOM_VK_2: 50,
+        DOM_VK_3: 51,
+        DOM_VK_4: 52,
+        DOM_VK_5: 53,
+        DOM_VK_6: 54,
+        DOM_VK_7: 55,
+        DOM_VK_8: 56,
+        DOM_VK_9: 57,
+        DOM_VK_SEMICOLON: 59,
+        DOM_VK_EQUALS: 61,
+        DOM_VK_A: 65,
+        DOM_VK_B: 66,
+        DOM_VK_C: 67,
+        DOM_VK_D: 68,
+        DOM_VK_E: 69,
+        DOM_VK_F: 70,
+        DOM_VK_G: 71,
+        DOM_VK_H: 72,
+        DOM_VK_I: 73,
+        DOM_VK_J: 74,
+        DOM_VK_K: 75,
+        DOM_VK_L: 76,
+        DOM_VK_M: 77,
+        DOM_VK_N: 78,
+        DOM_VK_O: 79,
+        DOM_VK_P: 80,
+        DOM_VK_Q: 81,
+        DOM_VK_R: 82,
+        DOM_VK_S: 83,
+        DOM_VK_T: 84,
+        DOM_VK_U: 85,
+        DOM_VK_V: 86,
+        DOM_VK_W: 87,
+        DOM_VK_X: 88,
+        DOM_VK_Y: 89,
+        DOM_VK_Z: 90,
+        DOM_VK_CONTEXT_MENU: 93,
+        DOM_VK_NUMPAD0: 96,
+        DOM_VK_NUMPAD1: 97,
+        DOM_VK_NUMPAD2: 98,
+        DOM_VK_NUMPAD3: 99,
+        DOM_VK_NUMPAD4: 100,
+        DOM_VK_NUMPAD5: 101,
+        DOM_VK_NUMPAD6: 102,
+        DOM_VK_NUMPAD7: 103,
+        DOM_VK_NUMPAD8: 104,
+        DOM_VK_NUMPAD9: 105,
+        DOM_VK_MULTIPLY: 106,
+        DOM_VK_ADD: 107,
+        DOM_VK_SEPARATOR: 108,
+        DOM_VK_SUBTRACT: 109,
+        DOM_VK_DECIMAL: 110,
+        DOM_VK_DIVIDE: 111,
+        DOM_VK_F1: 112,
+        DOM_VK_F2: 113,
+        DOM_VK_F3: 114,
+        DOM_VK_F4: 115,
+        DOM_VK_F5: 116,
+        DOM_VK_F6: 117,
+        DOM_VK_F7: 118,
+        DOM_VK_F8: 119,
+        DOM_VK_F9: 120,
+        DOM_VK_F10: 121,
+        DOM_VK_F11: 122,
+        DOM_VK_F12: 123,
+        DOM_VK_F13: 124,
+        DOM_VK_F14: 125,
+        DOM_VK_F15: 126,
+        DOM_VK_F16: 127,
+        DOM_VK_F17: 128,
+        DOM_VK_F18: 129,
+        DOM_VK_F19: 130,
+        DOM_VK_F20: 131,
+        DOM_VK_F21: 132,
+        DOM_VK_F22: 133,
+        DOM_VK_F23: 134,
+        DOM_VK_F24: 135,
+        DOM_VK_NUM_LOCK: 144,
+        DOM_VK_SCROLL_LOCK: 145,
+        DOM_VK_COMMA: 188,
+        DOM_VK_PERIOD: 190,
+        DOM_VK_SLASH: 191,
+        DOM_VK_BACK_QUOTE: 192,
+        DOM_VK_OPEN_BRACKET: 219,
+        DOM_VK_BACK_SLASH: 220,
+        DOM_VK_CLOSE_BRACKET: 221,
+        DOM_VK_QUOTE: 222,
+        DOM_VK_META: 224
+    };
 }
