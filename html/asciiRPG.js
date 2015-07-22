@@ -468,6 +468,10 @@ Actor.prototype.handleInput = function(key){
 			break;
 		case KeyEvent.DOM_VK_E:
 			this.inspect();
+			break;
+		case KeyEvent.DOM_VK_Q:
+			this.world.hud.menuUp = true;
+			break;
 	}
 };
 
@@ -494,7 +498,7 @@ Actor.prototype.inspect = function(){
 			}
 			var go = this.room.objectAt(x, y);
 			if(go !== null)
-				this.world.hud.setMessage(
+				this.world.hud.addMessage(
 					go.inspect(this)
 				);
 };
@@ -533,7 +537,7 @@ var World = function(canvasElement, world_data){
 	this.player.world = this;
 	
 	this.compositor = new Compositor(canvasElement);
-	this.hud = new HUD();
+	this.hud = new HUD(this);
 };
 
 World.prototype.draw = function(){
@@ -567,30 +571,79 @@ World.prototype.handleInput = function(key){
 		this.player.handleInput(key);
 };
 
-var HUD = function(){
-	this.message = "Ash: Whoa! Where am I?\n"+
-		"Oak: You are in the wonderful world of Pokemon!!";
+var HUD = function(world){
+	var hud = this;
+	this.world = world;
+	this.message = "";
+	this.addMessage("Ash: Whoa! Where am I?\n"+
+		"Oak: You are in the wonderful world of Pokemon!!");
+	this.yesnoUp = false;
 	this.isUp = false;
+	this.menu = new HUDMenu([
+			"POKeDEX",
+			"POKeMON",
+			"BAG",
+			"ASH",
+			"SAVE",
+			"OPTIONS",
+			"EXIT"
+		],
+		function(selectedItem){
+			switch(selectedItem)
+			{
+				case "EXIT":
+					hud.menuUp = false;
+					break;
+				default:
+					hud.addMessage(selectedItem + " is not available.");
+			}
+		}
+	);
+	this.yesno = new HUDMenu([
+			"YES",
+			"NO"
+		],
+		function(selectedItem){
+			switch(selectedItem)
+			{
+				case "YES":
+					hud.addMessage("You made a good choice");
+					break;
+				case "NO":
+					hud.addMessage("You made a less favourable choice");
+					break;
+			}
+			hud.yesnoUp = false;
+		}
+	);
+	
+	this.menuUp = false;
 };
 
 HUD.prototype.draw = function(compositor){
 	//3 chars padding either side with twice char size
-	function addNewlines(str){
+	function formatMessage(str){
 		var charsPerLine = Math.floor((SCREEN_WIDTH - 3*2)/2.65);
 		var lines = str.split('\n');
 		var out = [];
 		for(var i=0;i<lines.length;i++)
 			out = out.concat(lines[i].match(new RegExp('.{1,' + charsPerLine + '}', 'g')))
-		return out.join('\n');
+		return out.slice(0,3).join('\n');
 	}
 	if(this.message !== ""){
 		this.isUp = true;
 		var box = generateBox(SCREEN_WIDTH, TILE_HEIGHT*2);
 		var boxMap = generateBox(SCREEN_WIDTH, TILE_HEIGHT*2, fillChar="#");
-		
-		compositor.addText(addNewlines(this.message), 2, SCREEN_HEIGHT - TILE_HEIGHT*2 + 1);
+
+		compositor.addText(formatMessage(this.message), 2, SCREEN_HEIGHT - TILE_HEIGHT*2 + 1);
 
 		compositor.add(box, boxMap, 0, SCREEN_HEIGHT - TILE_HEIGHT*2);
+		if(this.yesnoUp){
+			this.yesno.draw(compositor);
+		}
+	}else if(this.menuUp){
+		this.isUp = true;
+		this.menu.draw(compositor);
 	}else{
 		this.isUp = false;
 	}
@@ -602,21 +655,75 @@ HUD.prototype.scrollMessage = function(){
 	this.message = lines.join('\n');
 };
 
-HUD.prototype.setMessage = function(message){
-	this.message = message
+HUD.prototype.addMessage = function(message){
+	this.message += message + "\n"
 };
 
 HUD.prototype.handleInput = function(key){
 	switch(key)
 	{
-		case KeyEvent.DOM_VK_E:
-			this.scrollMessage();
+		case KeyEvent.DOM_VK_W:
+		case KeyEvent.DOM_VK_S:
+			if(this.yesnoUp){
+				this.yesno.handleInput(key);
+			}else{
+				this.menu.handleInput(key);
+			}
 			break;
+		case KeyEvent.DOM_VK_E:
+			if(this.message == "" && this.menuUp)
+				this.menu.handleInput(key);
+			else{
+				if(this.yesnoUp){
+					this.yesno.handleInput(key);
+				}else{
+					this.scrollMessage();
+				}
+			}
+			break;
+		case KeyEvent.DOM_VK_Q:
+			if(this.message == "" && this.menuUp)
+				this.menuUp = false;
+			else
+				this.scrollMessage();
 		default:
 			break;
 	}
 };
 
+
+var HUDMenu = function(options, selectHandler){
+	this.menuOptions = options;
+	this.selectHandler = selectHandler;
+	this.selected = 0;
+};
+
+HUDMenu.prototype.draw = function(compositor){
+		var box = generateBox(TILE_WIDTH*3, SCREEN_HEIGHT);
+		var boxMap = generateBox(TILE_WIDTH*3, SCREEN_HEIGHT, fillChar="#");
+		
+		var selectBox = generateBox(TILE_WIDTH*3 - 2, 5);
+		for(var i=0;i < this.menuOptions.length; i++){
+			compositor.addText(this.menuOptions[i], SCREEN_WIDTH - TILE_WIDTH*3 + 3 , i*4.8 + 3.5);
+		}
+
+		compositor.add(box, boxMap, SCREEN_WIDTH - TILE_WIDTH*3, 0);
+		compositor.add(selectBox, selectBox, SCREEN_WIDTH - TILE_WIDTH*3 + 1, this.selected*5 + 1);
+};
+
+HUDMenu.prototype.handleInput = function(key){
+	switch(key)
+	{
+		case KeyEvent.DOM_VK_W:
+			this.selected = Math.max(0, this.selected - 1);
+			break;
+		case KeyEvent.DOM_VK_S:
+			this.selected = Math.min(this.menuOptions.length - 1, this.selected + 1);
+			break;
+		case KeyEvent.DOM_VK_E:
+			this.selectHandler(this.menuOptions[this.selected]);
+	}
+};
 
 // if WASD is down, mash move every 100ms (so we have regular continued movement)
 var keyPressers = {};
