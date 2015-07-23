@@ -299,6 +299,7 @@ Room.prototype.objectAt = function(x, y){
 }
 
 
+var sprites = {};
 var GameObject = function(game_object_data){
 	this.x = 0;
 	this.y = 0;
@@ -314,7 +315,12 @@ var GameObject = function(game_object_data){
 	this.description = "";
 	
 	if(game_object_data !== undefined){
-		this.sprite = new AnimatedSprite(game_object_data.sprite);
+		if(sprites.hasOwnProperty(game_object_data.name)){
+			this.sprite = sprites[game_object_data.name];
+		}else{
+			this.sprite = new AnimatedSprite(game_object_data.sprite);
+			sprites[game_object_data.name] = this.sprite;
+		}
 
 		if(game_object_data.properties !== undefined){
 			if(game_object_data.properties.solid === true)
@@ -325,6 +331,7 @@ var GameObject = function(game_object_data){
 		this.sprite = new Sprite();
 	}
 };
+
 
 
 GameObject.prototype.setSolid = function(value){
