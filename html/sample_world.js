@@ -99,6 +99,111 @@ var sample_data = {
 					},
 					properties: {},
 				},
+				ledgeL: {
+					name:"ledgeL",
+					sprite:{
+						states:[
+							{frames: [
+								";         \n"+
+								";.        \n"+
+								";         \n"+
+								";.        \n"+
+								";-        \n"
+							], frameRate: 1.5},
+						],
+					},
+					properties: {},
+				},
+				ledgeU: {
+					name:"ledgeU",
+					sprite:{
+						states:[
+							{frames: [
+								"-,---.--,-\n"+
+								"          \n"+
+								"          \n"+
+								"          \n"+
+								"          \n"
+							], frameRate: 1.5},
+						],
+					},
+					properties: {},
+				},
+				ledgeD: {
+					name:"ledgeD",
+					sprite:{
+						states:[
+							{frames: [
+								"          \n"+
+								"          \n"+
+								"          \n"+
+								"          \n"+
+								"_;__;___;_\n"
+							], frameRate: 1.5},
+						],
+					},
+					properties: {},
+				},
+				ledgeRD: {
+					name:"ledgeRD",
+					sprite:{
+						states:[
+							{frames: [
+								"         ;\n"+
+								"        .;\n"+
+								"         ;\n"+
+								"        .;\n"+
+								"_;__;___;;\n"
+							], frameRate: 1.5},
+						],
+					},
+					properties: {},
+				},
+				ledgeRU: {
+					name:"ledgeRU",
+					sprite:{
+						states:[
+							{frames: [
+								"-,---.---;\n"+
+								"         ;\n"+
+								"         ;\n"+
+								"        .;\n"+
+								"        -;\n"
+							], frameRate: 1.5},
+						],
+					},
+					properties: {},
+				},
+				ledgeLU: {
+					name:"ledgeLU",
+					sprite:{
+						states:[
+							{frames: [
+								";----.---;\n"+
+								";.        \n"+
+								";         \n"+
+								";.        \n"+
+								";-        \n"
+							], frameRate: 1.5},
+						],
+					},
+					properties: {},
+				},
+				ledgeLD: {
+					name:"ledgeLD",
+					sprite:{
+						states:[
+							{frames: [
+								";         \n"+
+								";.        \n"+
+								";         \n"+
+								";.        \n"+
+								";;__;___;_\n"
+							], frameRate: 1.5},
+						],
+					},
+					properties: {},
+				},
 				spinner: {
 					name:"spinner",
 					sprite:{
@@ -261,6 +366,13 @@ var pkmnASCII = function(){
 	var wall = gameObjects.wall;
 	var water = gameObjects.water;
 	var ledgeR = gameObjects.ledgeR;
+	var ledgeD = gameObjects.ledgeD;
+	var ledgeU = gameObjects.ledgeU;
+	var ledgeL = gameObjects.ledgeL;
+	var ledgeRD = gameObjects.ledgeRD;
+	var ledgeRU = gameObjects.ledgeRU;
+	var ledgeLD = gameObjects.ledgeLD;
+	var ledgeLU = gameObjects.ledgeLU;
 	var spinner = gameObjects.spinner;
 	var empty = gameObjects.empty;
 	var grass = gameObjects.grass;
@@ -284,15 +396,30 @@ var pkmnASCII = function(){
 					{
 						name:"Pallet Town",
 						tiles: [
-							[wall, wall, wall, wall, wall, wall, wall, water, water, wall],
-							[wall, empty, grass, grass, empty, empty, wall, water, water, wall],
-							[wall, empty, grass, grass, empty, empty, wall, water, water, wall],
-							[wall, empty, grass, grass, grass, spinner, wall, water, water, wall],
-							[wall, empty, grass, grass, grass, grass, wall, water, water, wall],
-							[wall, empty, grass, grass, grass, grass, ledgeR, water, water, wall],
-							[wall, empty, grass, grass, grass, grass, ledgeR, water, water, wall],
-							[wall, empty, grass, grass, empty, empty, ledgeR, water, water, wall],
-							[wall, wall, wall, wall, wall, wall, wall, wall, wall, wall],
+							[water, water, water, water, water, water, water, water, water, water, water, water, water, water, water, water],
+							[water, water, water, water, water, water, water, water, water, water, water, water, water, water, water, water],
+							[water, water, water, water, water, water, water, water, water, water, water, water, water, water, water, water],
+							[water, water, water, water, water, water, water, wall, wall, wall, wall,  water, water, wall, water, water],
+							[water, water, water, water, water, ledgeLU, ledgeU, ledgeR, water, water,  water, water, water, wall, water, water],
+							[water, water, water, water, water, ledgeL, grass, ledgeR, water, ledgeLU,ledgeU, ledgeRU, water, wall, water, water],
+							[water, water, water, water, water, ledgeL, grass, ledgeR, water, ledgeL, spinner, ledgeRD, water, wall, water, water],
+							[water, water, water, water, wall, empty, grass, ledgeR, ledgeU, grass, ledgeR, water, water, wall, water, water],
+							[water, water, water, water, wall, empty, grass, grass, ledgeD,  empty,  empty, ledgeRU, water, wall, water, water],
+							[water, water, water, water, wall, empty, grass, ledgeR, water, ledgeLD,ledgeD, ledgeRD, water, wall, water, water],
+							[water, water, water, water, wall, empty, grass, ledgeR, water, water, water, water, water, wall, water, water],
+							[water, water, water, water, wall, empty, grass, ledgeR, water, water, water, water, water, wall, water, water],
+							[water, water, water, water, wall, wall, wall, grass, wall, wall, wall, water, water, wall, water, water],
+							[water, water, water, water, wall, empty, grass, grass, empty, empty, ledgeR, water, water, wall, water, water],
+							[water, water, water, water, wall, spinner, grass, grass, empty, empty, ledgeR, water, water, wall, water, water],
+							[water, water, water, water, wall, empty, grass, grass, grass, spinner, ledgeR, water, water, wall, water, water],
+							[water, water, water, water, wall, empty, grass, grass, grass, grass, ledgeR, water, water, wall, water, water],
+							[water, water, water, water, wall, empty, spinner, grass, grass, grass, ledgeRD, water, water, wall, water, water],
+							[water, water, water, water, wall, ledgeD, ledgeD, ledgeD, ledgeD, ledgeRD, water, water, water, wall, water, water],
+							[water, water, water, water, wall, water, water, water, water, water, water, water, water, wall, water, water],
+							[water, water, water, water, water, water, water, water, water, water, water, water, water, water, water, water],
+							[water, water, water, water, water, water, water, water, water, water, water, water, water, water, water, water],
+							[water, water, water, water, water, water, water, water, water, water, water, water, water, water, water, water],
+							[water, water, water, water, water, water, water, water, water, water, water, water, water, water, water, water],
 						],
 						players: [
 							{
