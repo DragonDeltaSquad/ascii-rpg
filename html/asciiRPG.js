@@ -105,6 +105,11 @@ var LEFT = 1;
 var RIGHT = 2;
 var UP = 3;
 
+var select_snd = new Audio('sounds/select.wav');
+var menuUp_snd = new Audio('sounds/menuUp.wav');
+var menuDown_snd = new Audio('sounds/menuDown.wav');
+var selectChange_snd = new Audio('sounds/selectChange.wav');
+
 var Compositor = function(canvasElement){
 	this.el = canvasElement;
 	this.clearFrame();
@@ -471,6 +476,7 @@ Actor.prototype.handleInput = function(key){
 			break;
 		case KeyEvent.DOM_VK_Q:
 			this.world.hud.menuUp = true;
+			menuUp_snd.play();
 			break;
 	}
 };
@@ -501,6 +507,7 @@ Actor.prototype.inspect = function(){
 		var msg = go.inspect(this);
 		if(msg.trim() !== ""){
 			this.world.hud.addMessage(msg);
+			select_snd.play();
 		}
 	}
 };
@@ -739,11 +746,15 @@ HUD.prototype.handleInput = function(key){
 					this.scrollMessage();
 				}
 			}
+			select_snd.play();
 			break;
 		case KeyEvent.DOM_VK_Q:
-			if(this.message == "" && this.menuUp)
+			if(this.yesno.isUp){
+				this.yesno.handleInput(key);
+			}else if(this.message == "" && this.menuUp){
 				this.menuUp = false;
-			else
+				menuDown_snd.play();
+			}else
 				this.scrollMessage();
 		default:
 			break;
@@ -778,12 +789,15 @@ HUDMenu.prototype.handleInput = function(key){
 	{
 		case KeyEvent.DOM_VK_W:
 			this.selected = (this.selected - 1 + max_i) % max_i;
+			selectChange_snd.play();
 			break;
 		case KeyEvent.DOM_VK_S:
 			this.selected = (this.selected + 1 + max_i) % max_i;
+			selectChange_snd.play();
 			break;
 		case KeyEvent.DOM_VK_E:
 			this.selectHandler(this.menuOptions[this.selected]);
+			select_snd.play();
 			break;
 	}
 };
@@ -817,6 +831,7 @@ TitleScreen.prototype.draw = function(compositor){
 
 TitleScreen.prototype.handleInput = function(key){
 	this.game.switchMode('world');
+	select_snd.play();
 }
 
 // if WASD is down, mash move every 100ms (so we have regular continued movement)
