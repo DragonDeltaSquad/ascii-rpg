@@ -321,7 +321,7 @@ var sample_data = {
 									"   ___   \n  /mmm\\  \n  \\-.-/  \n  'mmO   \n   n `   \n",
 									"   ___    \n  /mmm\\   \n  \\@,@/   \n q mmm p  \n   n n    \n"
 								],
-								frameRate: 4
+								frameRate: 8
 							},
 							{
 								frames: [
@@ -330,7 +330,7 @@ var sample_data = {
 									"   ___   \n _/mmm\\  \n |-\\\\)/  \n  `mOn   \n  \\   b  \n",
 									"   ___    \n _/mmm\\   \n |6\\\\)/   \n  `mOn    \n   dd     \n"
 								],
-								frameRate: 4
+								frameRate: 8
 							},
 							{
 								frames: [
@@ -339,7 +339,7 @@ var sample_data = {
 									"   ___   \n  /mmm\\_ \n  \\(//-| \n   nOm`  \n   d   / \n",
 									"   ___    \n  /mmm\\_  \n  \\(//6|  \n   nOm`   \n    bb    \n"
 								],
-								frameRate: 4
+								frameRate: 8
 							},
 							{
 								frames: [
@@ -348,7 +348,7 @@ var sample_data = {
 									"   ___   \n  /-_-\\  \n  \\mmm/  \n   mOmb  \n   , `   \n",
 									"   ___    \n  /-_-\\   \n  \\mmm/   \n   mOm    \n   , ,    \n"
 								], 
-								frameRate: 4
+								frameRate: 8
 							},
 						],
 						callbackFunctions: {},

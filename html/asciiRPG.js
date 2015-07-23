@@ -98,7 +98,8 @@ var SCREEN_PX_HEIGHT = 900;
 var TILE_HEIGHT = 5;
 var TILE_WIDTH = 10;
 
-var FPS = 30;
+var FPS = 60;
+var MAX_FPS = 100;
 
 var DOWN = 0;
 var LEFT = 1;
@@ -422,7 +423,7 @@ Actor.prototype.move = function(direction, _countdown){
 		if(this.direction !== direction){
 			actor.setMoving(true);
 			this.setDirection(direction);
-			setTimeout(function(){actor.setMoving(false);}, 50);
+			setTimeout(function(){actor.setMoving(false);}, 10);
 			return;
 		}
 	
@@ -449,7 +450,7 @@ Actor.prototype.move = function(direction, _countdown){
 					this.x += 2;
 					break;
 			}
-			setTimeout(function(){actor.move(direction, _countdown - 1)}, 50);
+			setTimeout(function(){actor.move(direction, _countdown - 1)}, 30);
 		}else{  // base case
 			actor.setMoving(false);
 		}
@@ -527,12 +528,30 @@ var Game = function(canvasEl, game_data){
 	this.repeatPressMovementKeys = true;
 };
 
+var gameFrame = 0;
+var start = new Date();
+
+var actual_fps = FPS;
+
 Game.prototype.run = function(){
 	var g = this;
 	if(g.activeMode)
 		g.activeMode.draw(this.compositor);
 	this.compositor.render();
-	setTimeout(function(){g.run()}, 1000/FPS);
+	
+	
+	gameFrame++;
+	var now = new Date();
+	if(now - start > 1000){
+		var current_fps = gameFrame/(now-start)*1000;
+		var err = FPS - current_fps;
+		console.log(current_fps + " fps FPS: " + FPS + " err:" + err);
+		actual_fps = Math.min(actual_fps + err, MAX_FPS);
+		start = now;
+		gameFrame = 0;
+	}
+	
+	setTimeout(function(){g.run()}, 1000/actual_fps);
 };
 
 Game.prototype.handleInput = function(key){
