@@ -516,6 +516,8 @@ var Game = function(canvasEl, game_data){
 	}
 	this.activeMode = this.modes.title;
 	
+	// true if holding down WASD repeats presses
+	this.repeatPressMovementKeys = true;
 };
 
 Game.prototype.run = function(){
@@ -598,13 +600,23 @@ World.prototype.handleInput = function(key){
 };
 
 var HUD = function(world, game){
+
+	this.MESSAGE = 1;
+	this.PROMPT = 2;
+
 	var hud = this;
 	this.world = world;
 	this.game = game;
+	
+	this.displayQueue = [];
 	this.message = "";
+	
 	this.addMessage("Ash: Whoa! Where am I?\n"+
 		"Oak: You are in the wonderful world of Pokemon!!");
-	this.yesnoUp = false;
+	this.prompt("Do you like it here?", function(resp){
+		hud.addMessage("then " + resp);
+	});
+	
 	this.isUp = false;
 	this.menu = new HUDMenu([
 			"POKeDEX",
@@ -631,24 +643,28 @@ var HUD = function(world, game){
 			"YES",
 			"NO"
 		],
-		function(selectedItem){
-			switch(selectedItem)
-			{
-				case "YES":
-					hud.addMessage("You made a good choice");
-					break;
-				case "NO":
-					hud.addMessage("You made a less favourable choice");
-					break;
-			}
-			hud.yesnoUp = false;
-		}
+		null
 	);
 	
 	this.menuUp = false;
 };
 
 HUD.prototype.draw = function(compositor){
+	var hud = this;
+	// draw message/prompt box
+	if(this.displayQueue.length > 0 && this.message.trim() === ""){
+		var displayRequest = this.displayQueue.pop()
+		this.message = displayRequest.message;
+		this.yesno.isUp = displayRequest.type === this.PROMPT;
+		if(this.yesno.isUp)
+			this.yesno.selectHandler = function(value){
+				hud.scrollMessage();
+				displayRequest.callback(value);
+				this.selectHandler = null;
+				this.isUp = false;
+			}
+	}
+
 	//3 chars padding either side with twice char size
 	function formatMessage(str){
 		var charsPerLine = Math.floor((SCREEN_WIDTH - 3*2)/2.65);
@@ -658,6 +674,7 @@ HUD.prototype.draw = function(compositor){
 			out = out.concat(lines[i].match(new RegExp('.{1,' + charsPerLine + '}', 'g')))
 		return out.slice(0,3).join('\n');
 	}
+		
 	if(this.message.trim() !== ""){
 		this.isUp = true;
 		var box = generateBox(SCREEN_WIDTH, TILE_HEIGHT*2);
@@ -666,15 +683,19 @@ HUD.prototype.draw = function(compositor){
 		compositor.addText(formatMessage(this.message), 2, SCREEN_HEIGHT - TILE_HEIGHT*2 + 1);
 
 		compositor.add(box, boxMap, 0, SCREEN_HEIGHT - TILE_HEIGHT*2);
-		if(this.yesnoUp){
+		if(this.yesno.isUp){
 			this.yesno.draw(compositor);
 		}
+
+	//draw menu
 	}else if(this.menuUp){
 		this.isUp = true;
 		this.menu.draw(compositor);
 	}else{
 		this.isUp = false;
 	}
+	
+	this.game.repeatPressMovementKeys = !this.isUp;
 };
 
 HUD.prototype.scrollMessage = function(){
@@ -684,7 +705,17 @@ HUD.prototype.scrollMessage = function(){
 };
 
 HUD.prototype.addMessage = function(message){
-	this.message += message + "\n"
+	this.displayQueue.unshift({
+		'type': this.MESSAGE,
+		'message': message,
+	});
+};
+HUD.prototype.prompt = function(message, callback){
+	this.displayQueue.unshift({
+		'type': this.PROMPT,
+		'message': message,
+		'callback': callback,
+	});
 };
 
 HUD.prototype.handleInput = function(key){
@@ -692,7 +723,7 @@ HUD.prototype.handleInput = function(key){
 	{
 		case KeyEvent.DOM_VK_W:
 		case KeyEvent.DOM_VK_S:
-			if(this.yesnoUp){
+			if(this.yesno.isUp){
 				this.yesno.handleInput(key);
 			}else{
 				this.menu.handleInput(key);
@@ -702,7 +733,7 @@ HUD.prototype.handleInput = function(key){
 			if(this.message.trim() === "" && this.menuUp)
 				this.menu.handleInput(key);
 			else{
-				if(this.yesnoUp){
+				if(this.yesno.isUp){
 					this.yesno.handleInput(key);
 				}else{
 					this.scrollMessage();
@@ -724,6 +755,7 @@ var HUDMenu = function(options, selectHandler){
 	this.menuOptions = options;
 	this.selectHandler = selectHandler;
 	this.selected = 0;
+	this.isUp = false;
 };
 
 HUDMenu.prototype.draw = function(compositor){
@@ -752,6 +784,7 @@ HUDMenu.prototype.handleInput = function(key){
 			break;
 		case KeyEvent.DOM_VK_E:
 			this.selectHandler(this.menuOptions[this.selected]);
+			break;
 	}
 };
 
@@ -799,7 +832,10 @@ $(document).keydown(function(event){
 				return;
 			}
 			game.handleInput(event.keyCode);
-			keyPressers[event.keyCode] = setInterval(function(){game.handleInput(event.keyCode);}, 100);
+			if(game.repeatPressMovementKeys)
+				keyPressers[event.keyCode] = setInterval(function(){game.handleInput(event.keyCode);}, 100);
+			else
+				keyPressers[event.keyCode] = true;
 			break;
 		default:
 			if(keyPressers[event.keyCode]){
