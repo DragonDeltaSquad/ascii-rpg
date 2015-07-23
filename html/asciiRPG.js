@@ -432,16 +432,16 @@ Actor.prototype.move = function(direction, _countdown){
 		if(_countdown > 0){ // general case
 			switch(direction){
 				case UP:
-					game.player.y -= 1;
+					this.y -= 1;
 					break;
 				case DOWN:
-					game.player.y += 1;
+					this.y += 1;
 					break;
 				case LEFT:
-					game.player.x -= 2;
+					this.x -= 2;
 					break;
 				case RIGHT:
-					game.player.x += 2;
+					this.x += 2;
 					break;
 			}
 			setTimeout(function(){actor.move(direction, _countdown - 1)}, 50);
@@ -476,35 +476,67 @@ Actor.prototype.handleInput = function(key){
 };
 
 Actor.prototype.inspect = function(){
-			var x;
-			var y;
-			switch(this.direction){
-				case UP:
-					x = this.x;
-					y = this.y - TILE_HEIGHT;
-					break;
-				case DOWN:
-					x = this.x;
-					y = this.y + TILE_HEIGHT;
-					break;
-				case LEFT:
-					x = this.x - TILE_WIDTH;
-					y = this.y;
-					break;
-				case RIGHT:
-					x = this.x + TILE_WIDTH;
-					y = this.y;
-					break;
-			}
-			var go = this.room.objectAt(x, y);
-			if(go !== null)
-				this.world.hud.addMessage(
-					go.inspect(this)
-				);
+	var x;
+	var y;
+	switch(this.direction){
+		case UP:
+			x = this.x;
+			y = this.y - TILE_HEIGHT;
+			break;
+		case DOWN:
+			x = this.x;
+			y = this.y + TILE_HEIGHT;
+			break;
+		case LEFT:
+			x = this.x - TILE_WIDTH;
+			y = this.y;
+			break;
+		case RIGHT:
+			x = this.x + TILE_WIDTH;
+			y = this.y;
+			break;
+	}
+	var go = this.room.objectAt(x, y);
+	if(go !== null){
+		var msg = go.inspect(this);
+		if(msg.trim() !== ""){
+			this.world.hud.addMessage(msg);
+		}
+	}
 };
 
+var Game = function(canvasEl, game_data){
+	this.modes = game_data.modes;
+	this.compositor = new Compositor(canvasEl);
+	if(this.modes.hasOwnProperty("world")){
+		this.modes.world = new World(this.modes.world, this);
+	}
+	if(this.modes.hasOwnProperty("title")){
+		this.modes.title = new TitleScreen(this.modes.title, this);
+	}
+	this.activeMode = this.modes.title;
+	
+};
 
-var World = function(canvasElement, world_data){
+Game.prototype.run = function(){
+	var g = this;
+	if(g.activeMode)
+		g.activeMode.draw(this.compositor);
+	this.compositor.render();
+	setTimeout(function(){g.run()}, 1000/FPS);
+};
+
+Game.prototype.handleInput = function(key){
+	if(this.activeMode)
+		this.activeMode.handleInput(key);
+};
+
+Game.prototype.switchMode = function(modeName){
+	if(this.modes.hasOwnProperty(modeName))
+		this.activeMode = this.modes[modeName];
+}
+
+var World = function(world_data, game){
 
 	if(world_data === undefined){
 		world_data = {
@@ -534,33 +566,27 @@ var World = function(canvasElement, world_data){
 	}
 	this.room = new Room(world_data.rooms[0]);
 	this.player = this.room.player;
+	
+	this.game = game;
 	this.player.world = this;
 	
-	this.compositor = new Compositor(canvasElement);
-	this.hud = new HUD(this);
+	this.hud = new HUD(this, game);
 };
 
-World.prototype.draw = function(){
+World.prototype.draw = function(compositor){
 	var viewport_x = this.player.x - SCREEN_WIDTH/2;
 	var viewport_y = this.player.y - Math.floor(SCREEN_HEIGHT/2) - 3;
 
-	this.compositor.clearFrame();
+	compositor.clearFrame();
 	for(var i=0; i < this.room.gameObjects.length;i++){
-		this.compositor.add(
+		compositor.add(
 			this.room.gameObjects[i].sprite.getImage(),
 			this.room.gameObjects[i].sprite.getMap(),
 			this.room.gameObjects[i].x - viewport_x,
 			this.room.gameObjects[i].y - viewport_y
 		);
 	}
-	this.hud.draw(this.compositor);
-	this.compositor.render();
-};
-
-World.prototype.run = function(){
-	var g = this;
-	g.draw();
-	setTimeout(function(){g.run()}, 1000/FPS);
+	this.hud.draw(compositor);
 };
 
 World.prototype.handleInput = function(key){
@@ -571,9 +597,10 @@ World.prototype.handleInput = function(key){
 		this.player.handleInput(key);
 };
 
-var HUD = function(world){
+var HUD = function(world, game){
 	var hud = this;
 	this.world = world;
+	this.game = game;
 	this.message = "";
 	this.addMessage("Ash: Whoa! Where am I?\n"+
 		"Oak: You are in the wonderful world of Pokemon!!");
@@ -592,6 +619,7 @@ var HUD = function(world){
 			switch(selectedItem)
 			{
 				case "EXIT":
+					hud.game.switchMode('title');
 					hud.menuUp = false;
 					break;
 				default:
@@ -630,7 +658,7 @@ HUD.prototype.draw = function(compositor){
 			out = out.concat(lines[i].match(new RegExp('.{1,' + charsPerLine + '}', 'g')))
 		return out.slice(0,3).join('\n');
 	}
-	if(this.message !== ""){
+	if(this.message.trim() !== ""){
 		this.isUp = true;
 		var box = generateBox(SCREEN_WIDTH, TILE_HEIGHT*2);
 		var boxMap = generateBox(SCREEN_WIDTH, TILE_HEIGHT*2, fillChar="#");
@@ -671,7 +699,7 @@ HUD.prototype.handleInput = function(key){
 			}
 			break;
 		case KeyEvent.DOM_VK_E:
-			if(this.message == "" && this.menuUp)
+			if(this.message.trim() === "" && this.menuUp)
 				this.menu.handleInput(key);
 			else{
 				if(this.yesnoUp){
@@ -712,18 +740,51 @@ HUDMenu.prototype.draw = function(compositor){
 };
 
 HUDMenu.prototype.handleInput = function(key){
+
+	var max_i = this.menuOptions.length;
 	switch(key)
 	{
 		case KeyEvent.DOM_VK_W:
-			this.selected = Math.max(0, this.selected - 1);
+			this.selected = (this.selected - 1 + max_i) % max_i;
 			break;
 		case KeyEvent.DOM_VK_S:
-			this.selected = Math.min(this.menuOptions.length - 1, this.selected + 1);
+			this.selected = (this.selected + 1 + max_i) % max_i;
 			break;
 		case KeyEvent.DOM_VK_E:
 			this.selectHandler(this.menuOptions[this.selected]);
 	}
 };
+
+var TitleScreen = function(data, game){
+	this.game = game;
+	this.data = data;
+	
+	this.objects = [];
+	for(var i=0;i<this.data.objects.length;i++){
+		this.objects.push({
+			'gameObject': new GameObject(this.data.objects[i].gameObject),
+			'location': this.data.objects[i].location,
+		});
+	}
+};
+
+TitleScreen.prototype.draw = function(compositor){
+	var box = generateBox(SCREEN_WIDTH, SCREEN_HEIGHT);
+	compositor.clearFrame();
+	compositor.add(box, box, 0,0);
+	for(var i=0; i < this.objects.length;i++){
+		compositor.add(
+			this.objects[i].gameObject.sprite.getImage(),
+			this.objects[i].gameObject.sprite.getMap(),
+			this.objects[i].location[0],
+			this.objects[i].location[1]
+		);
+	}
+};
+
+TitleScreen.prototype.handleInput = function(key){
+	this.game.switchMode('world');
+}
 
 // if WASD is down, mash move every 100ms (so we have regular continued movement)
 var keyPressers = {};
@@ -791,8 +852,8 @@ var parseSpriteSheet = function(imageString){
 };
 
 var asciiRPG = {
-	load: function(canvasEl, world_data){
-			return new World(canvasEl, world_data);
+	load: function(canvasEl, game_data){
+			return new Game(canvasEl, game_data);
 	}
 }
 
