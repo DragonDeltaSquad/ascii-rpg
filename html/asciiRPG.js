@@ -111,6 +111,31 @@ var play = function(sound){
 	return null;
 };
 
+var loop = function(filename){
+	var audio = new Audio(filename);
+	var isPlaying = true;
+	
+	//modified from http://stackoverflow.com/a/3273566/4187005
+	audio.addEventListener('ended', function() {
+		if(audio){
+			this.currentTime = 0;
+			this.play();
+		}
+	}, false);
+	audio.play();
+	return {
+		'audio': audio,
+		'pause': function(){
+			isPlaying = false;
+			audio.pause();
+		},
+		'play': function(){
+			isPlaying = true;
+			audio.play();
+		}
+	}
+}
+
 var Compositor = function(canvasElement){
 	this.el = canvasElement;
 	this.clearFrame();
