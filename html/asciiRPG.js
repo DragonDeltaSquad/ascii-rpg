@@ -95,10 +95,21 @@ var LEFT = 1;
 var RIGHT = 2;
 var UP = 3;
 
-var select_snd = new Audio('sounds/select.wav');
-var menuUp_snd = new Audio('sounds/menuUp.wav');
-var menuDown_snd = new Audio('sounds/menuDown.wav');
-var selectChange_snd = new Audio('sounds/selectChange.wav');
+
+var sfx = {
+	select: 'sounds/select.wav',
+	menuUp: 'sounds/menuUp.wav',
+	menuDown: 'sounds/menuDown.wav',
+	selectChange: 'sounds/selectChange.wav',
+};
+var play = function(sound){
+	if(sfx.hasOwnProperty(sound)){
+		var sound = new Audio(sfx[sound]);
+		sound.play();
+		return sound;
+	}
+	return null;
+};
 
 var Compositor = function(canvasElement){
 	this.el = canvasElement;
@@ -500,7 +511,7 @@ Actor.prototype.handleInput = function(key){
 			break;
 		case KeyEvent.DOM_VK_Q:
 			this.world.hud.menuUp = true;
-			menuUp_snd.play();
+			play('menuUp');
 			break;
 	}
 };
@@ -531,7 +542,7 @@ Actor.prototype.inspect = function(){
 		var msg = go.inspect(this);
 		if(msg.trim() !== ""){
 			this.world.hud.addMessage(msg);
-			select_snd.play();
+			play('select');
 		}
 	}
 };
@@ -800,14 +811,14 @@ HUD.prototype.handleInput = function(key){
 					this.scrollMessage();
 				}
 			}
-			select_snd.play();
+			play('select');
 			break;
 		case KeyEvent.DOM_VK_Q:
 			if(this.yesno.isUp){
 				this.yesno.handleInput(key);
 			}else if(this.message == "" && this.menuUp){
 				this.menuUp = false;
-				menuDown_snd.play();
+				play('menuDown');
 			}else
 				this.scrollMessage();
 		default:
@@ -824,16 +835,31 @@ var HUDMenu = function(options, selectHandler){
 };
 
 HUDMenu.prototype.draw = function(compositor){
-		var box = generateBox(TILE_WIDTH*3, SCREEN_HEIGHT);
-		var boxMap = generateBox(TILE_WIDTH*3, SCREEN_HEIGHT, fillChar="#");
-		
-		var selectBox = generateBox(TILE_WIDTH*3 - 2, 5);
-		for(var i=0;i < this.menuOptions.length; i++){
-			compositor.addText(this.menuOptions[i], SCREEN_WIDTH - TILE_WIDTH*3 + 3 , i*4.8 + 3.5);
-		}
+	var boxHeight = this.menuOptions.length*5 + 2;
+	var box = generateBox(TILE_WIDTH*3, boxHeight);
+	var boxMap = generateBox(TILE_WIDTH*3, boxHeight, fillChar="#");
+	
+	var selectBox = generateBox(TILE_WIDTH*3 - 2, 5);
+	for(var i=0;i < this.menuOptions.length; i++){
+		compositor.addText(
+			this.menuOptions[i], 
+			SCREEN_WIDTH - TILE_WIDTH*3 + 3 , 
+			SCREEN_HEIGHT - this.menuOptions.length*4.81 - 10 + i*4.8 + 2.3
+		);
+	}
 
-		compositor.add(box.split('\n'), boxMap.split('\n'), SCREEN_WIDTH - TILE_WIDTH*3, 0);
-		compositor.add(selectBox.split('\n'), selectBox.split('\n'), SCREEN_WIDTH - TILE_WIDTH*3 + 1, this.selected*5 + 1);
+	compositor.add(
+		box.split('\n'), 
+		boxMap.split('\n'), 
+		SCREEN_WIDTH - TILE_WIDTH*3, 
+		SCREEN_HEIGHT - this.menuOptions.length*5 - 10
+	);
+	compositor.add(
+		selectBox.split('\n'), 
+		selectBox.split('\n'), 
+		SCREEN_WIDTH - TILE_WIDTH*3 + 1, 
+		SCREEN_HEIGHT - this.menuOptions.length*5 - 10 + this.selected*5 + 1
+	);
 };
 
 HUDMenu.prototype.handleInput = function(key){
@@ -843,15 +869,15 @@ HUDMenu.prototype.handleInput = function(key){
 	{
 		case KeyEvent.DOM_VK_W:
 			this.selected = (this.selected - 1 + max_i) % max_i;
-			selectChange_snd.play();
+			play('selectChange');
 			break;
 		case KeyEvent.DOM_VK_S:
 			this.selected = (this.selected + 1 + max_i) % max_i;
-			selectChange_snd.play();
+			play('selectChange');
 			break;
 		case KeyEvent.DOM_VK_E:
 			this.selectHandler(this.menuOptions[this.selected]);
-			select_snd.play();
+			play('select');
 			break;
 	}
 };
@@ -885,7 +911,7 @@ TitleScreen.prototype.draw = function(compositor){
 
 TitleScreen.prototype.handleInput = function(key){
 	this.game.switchMode('world');
-	select_snd.play();
+	play('select')
 }
 
 // if WASD is down, mash move every 100ms (so we have regular continued movement)
