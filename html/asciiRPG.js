@@ -3,10 +3,9 @@
 // http://stackoverflow.com/a/21574562/4187005
 function fillTextMultiLine(ctx, text, x, y) {
   var lineHeight = ctx.measureText("M").width * 2;
-  var lines = text.split("\n");
-  for (var i = 0; i < lines.length; ++i) {
-    ctx.fillText(lines[i], x, y);
-    ctx.strokeText(lines[i], x, y);
+  for (var i = 0; i < text.length; ++i) {
+    ctx.fillText(text[i], x, y);
+    ctx.strokeText(text[i], x, y);
 		y += lineHeight;
   }
 }
@@ -65,27 +64,17 @@ function generateTile(character){
 }
 
 function layerText(base, content, map, x, y){
-	var img = content.split("\n");
-	var mapImg = map.split("\n");
-	var baseImg = base.split("\n");
-	var out = "";
-	for(var row=0;row<baseImg.length;row++){
-		var line = "";
-		for(var col=0;col<baseImg[row].length;col++){
+	for(var row=0;row<base.length;row++){
+		for(var col=0;col<base[row].length;col++){
 			var img_row = row - y;
 			var img_col = col - x;
-			if(img_row >= 0 && img_row < mapImg.length &&
-				img_col >= 0 && img_col < mapImg[0].length &&
-				mapImg[img_row] != "" && 
-				mapImg[img_row][img_col] != " ")
-				line += img[img_row][img_col];
-			else
-				line += baseImg[row][col];
+			if(img_row >= 0 && img_row < map.length &&
+				img_col >= 0 && img_col < map[0].length &&
+				map[img_row] != "" && 
+				map[img_row][img_col] != " ")
+				base[row][col] = content[img_row][img_col];
 		}
-		line += "\n";
-		out += line;
 	}
-	return out;
 };
 
 
@@ -126,21 +115,31 @@ Compositor.prototype.render = function(){
 		ctx.font = "16.6px Courier New";
 		ctx.fillStyle = "black";
 		ctx.textAlign = "left";
-		fillTextMultiLine(ctx, this.frame, 0, 13);
+		
+		var lines = [];
+		for (var i = 0; i < this.frameArr.length; ++i) {
+			lines.push(this.frameArr[i].join(""));
+		}
+		
+		fillTextMultiLine(ctx, lines, 0, 13);
 		
 		ctx.font = "45px Courier New";
 		ctx.textAlign = "left";
 		for(var t=0;t<this.textOverlays.length;t++){
 			var textObj = this.textOverlays[t];
-			fillTextMultiLine(ctx, textObj.text, textObj.x*9.86, 13 + textObj.y*20.5 );
+			fillTextMultiLine(ctx, textObj.text.split('\n'), textObj.x*9.86, 13 + textObj.y*20.5 );
 		}
 };
 
 Compositor.prototype.clearFrame = function(){
 	this.frame = "";
+	this.frameArr = [];
 	for(var i=0;i<SCREEN_HEIGHT;i++){
+	
+		this.frameArr.push([]);
 		for(var j=0;j<SCREEN_WIDTH;j++){
 			this.frame += " ";
+			this.frameArr[i].push(" ");
 		}
 		this.frame += "\n";
 	}
@@ -149,6 +148,10 @@ Compositor.prototype.clearFrame = function(){
 
 Compositor.prototype.add = function(content, map, x, y){
 	this.frame = layerText(this.frame, content, map, x, y);
+};
+
+Compositor.prototype.add = function(content, map, x, y){
+	layerText(this.frameArr, content, map, x, y);
 };
 
 Compositor.prototype.addText = function(text, x, y){
@@ -175,8 +178,19 @@ Sprite.prototype.getMap = function(){
 var AnimatedSprite = function(sprite_data, options){
 	Sprite.call(this);
 	
-	this.image = sprite_data.states;
-	this.map = sprite_data.states;
+	this.image = jQuery.extend(true, [], sprite_data.states);
+	this.map = jQuery.extend(true, [], sprite_data.states);
+	
+	for(var state=0;state<this.image.length;state++){
+		for(var frame=0;frame<this.image[state].frames.length;frame++){
+			this.image[state].frames[frame] = this.image[state].frames[frame].split('\n');
+		}
+	}
+	for(var state=0;state<this.map.length;state++){
+		for(var frame=0;frame<this.map[state].frames.length;frame++){
+			this.map[state].frames[frame] = this.map[state].frames[frame].split('\n');
+		}
+	}
 	
 	this.frameDelay = 170;
 	this.cycleInterval = null;
@@ -539,6 +553,7 @@ var gameFrame = 0;
 var start = new Date();
 
 var actual_fps = FPS;
+var current_fps;
 
 Game.prototype.run = function(){
 	var g = this;
@@ -550,7 +565,7 @@ Game.prototype.run = function(){
 	gameFrame++;
 	var now = new Date();
 	if(now - start > 1000){
-		var current_fps = gameFrame/(now-start)*1000;
+		current_fps = gameFrame/(now-start)*1000;
 		var err = FPS - current_fps;
 		console.log(current_fps + " fps FPS: " + FPS + " err:" + err);
 		actual_fps = Math.min(actual_fps + err, MAX_FPS);
@@ -715,7 +730,7 @@ HUD.prototype.draw = function(compositor){
 
 		compositor.addText(formatMessage(this.message), 2, SCREEN_HEIGHT - TILE_HEIGHT*2 + 1);
 
-		compositor.add(box, boxMap, 0, SCREEN_HEIGHT - TILE_HEIGHT*2);
+		compositor.add(box.split('\n'), boxMap.split('\n'), 0, SCREEN_HEIGHT - TILE_HEIGHT*2);
 		if(this.yesno.isUp){
 			this.yesno.draw(compositor);
 		}
@@ -804,8 +819,8 @@ HUDMenu.prototype.draw = function(compositor){
 			compositor.addText(this.menuOptions[i], SCREEN_WIDTH - TILE_WIDTH*3 + 3 , i*4.8 + 3.5);
 		}
 
-		compositor.add(box, boxMap, SCREEN_WIDTH - TILE_WIDTH*3, 0);
-		compositor.add(selectBox, selectBox, SCREEN_WIDTH - TILE_WIDTH*3 + 1, this.selected*5 + 1);
+		compositor.add(box.split('\n'), boxMap.split('\n'), SCREEN_WIDTH - TILE_WIDTH*3, 0);
+		compositor.add(selectBox.split('\n'), selectBox.split('\n'), SCREEN_WIDTH - TILE_WIDTH*3 + 1, this.selected*5 + 1);
 };
 
 HUDMenu.prototype.handleInput = function(key){
@@ -844,7 +859,7 @@ var TitleScreen = function(data, game){
 TitleScreen.prototype.draw = function(compositor){
 	var box = generateBox(SCREEN_WIDTH, SCREEN_HEIGHT);
 	compositor.clearFrame();
-	compositor.add(box, box, 0,0);
+	compositor.add(box.split('\n'), box.split('\n'), 0,0);
 	for(var i=0; i < this.objects.length;i++){
 		compositor.add(
 			this.objects[i].gameObject.sprite.getImage(),
