@@ -1,4 +1,4 @@
-
+BUILD_ITERATION = "1:Bulbasaur"
 
 // http://stackoverflow.com/a/21574562/4187005
 function fillTextMultiLine(ctx, text, x, y) {
@@ -88,7 +88,7 @@ var TILE_HEIGHT = 5;
 var TILE_WIDTH = 10;
 
 var FPS = 60;
-var MAX_FPS = 100;
+var MAX_FPS = 200;
 
 var DOWN = 0;
 var LEFT = 1;
@@ -107,6 +107,7 @@ var Compositor = function(canvasElement){
 };
 
 Compositor.prototype.render = function(){
+		this.add(["Build: " + BUILD_ITERATION],["xxxxxxx" + BUILD_ITERATION], SCREEN_WIDTH - BUILD_ITERATION.length - 7,0);
 		var ctx = this.el.getContext("2d");
 		
 		ctx.fillStyle = "white";
@@ -333,6 +334,7 @@ var GameObject = function(game_object_data){
 			this.sprite = sprites[game_object_data.name];
 		}else{
 			this.sprite = new AnimatedSprite(game_object_data.sprite);
+			this.sprite.name = game_object_data.name;
 			sprites[game_object_data.name] = this.sprite;
 		}
 
@@ -385,7 +387,7 @@ GameObject.prototype.inspect = function(actor){
 var Actor = function(actor_data){
 	GameObject.call(this, actor_data.player);
 	
-	this.sprite = new AnimatedSprite(actor_data.player.sprite);
+	this.sprite = new AnimatedSprite(actor_data.player.sprite, {'autostart': false});
 	this.x = actor_data.location[0]*TILE_WIDTH;
 	this.y = actor_data.location[1]*TILE_HEIGHT;
 	
@@ -567,7 +569,7 @@ Game.prototype.run = function(){
 	if(now - start > 1000){
 		current_fps = gameFrame/(now-start)*1000;
 		var err = FPS - current_fps;
-		console.log(current_fps + " fps FPS: " + FPS + " err:" + err);
+		//console.log(current_fps + " fps FPS: " + FPS + " err:" + err);
 		actual_fps = Math.min(actual_fps + err, MAX_FPS);
 		start = now;
 		gameFrame = 0;
@@ -582,9 +584,20 @@ Game.prototype.handleInput = function(key){
 };
 
 Game.prototype.switchMode = function(modeName){
-	if(this.modes.hasOwnProperty(modeName))
+	if(this.modes.hasOwnProperty(modeName)){
 		this.activeMode = this.modes[modeName];
-}
+		
+		// HACK: Some sprites stop playing when you switch modes... 
+		// so restart them all
+		var i;
+		for(i in sprites){
+			if(sprites[i].stop !== undefined){
+				sprites[i].stop();
+				sprites[i].start();
+			}
+		}
+	}
+};
 
 var World = function(world_data, game){
 
@@ -624,8 +637,8 @@ var World = function(world_data, game){
 };
 
 World.prototype.draw = function(compositor){
-	var viewport_x = this.player.x - SCREEN_WIDTH/2;
-	var viewport_y = this.player.y - Math.floor(SCREEN_HEIGHT/2) - 3;
+	var viewport_x = this.player.x - (SCREEN_WIDTH/2 - TILE_WIDTH);
+	var viewport_y = this.player.y - (Math.floor(SCREEN_HEIGHT/2) - TILE_HEIGHT) - 3;
 
 	compositor.clearFrame();
 	for(var i=0; i < this.room.gameObjects.length;i++){

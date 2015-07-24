@@ -385,8 +385,10 @@ var pkmnASCII = function(){
 	var star = gameObjects.star;
 	var star2 = jQuery.extend(true, {}, star);
 	star2.sprite.states[0].frames.unshift(star2.sprite.states[0].frames.pop());
+	star2.name = "star2";
 	var star3 = jQuery.extend(true, {}, star2);
 	star3.sprite.states[0].frames.unshift(star3.sprite.states[0].frames.pop());
+	star3.name = "star3";
 	
 	return {
 		modes: {
