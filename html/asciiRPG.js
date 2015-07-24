@@ -1,4 +1,4 @@
-BUILD_ITERATION = "1:Bulbasaur"
+ITERATION = "1:Bulbasaur"
 
 // http://stackoverflow.com/a/21574562/4187005
 function fillTextMultiLine(ctx, text, x, y) {
@@ -111,30 +111,30 @@ var play = function(sound){
 	return null;
 };
 
-var loop = function(filename){
-	var audio = new Audio(filename);
-	var isPlaying = true;
-	
+var AudioLoop = function(filename){
+	this.audio = new Audio(filename);
+	this.isPlaying = false;
+	var audioLoop = this;
+	this.audio.loop = true;
+	/*
 	//modified from http://stackoverflow.com/a/3273566/4187005
-	audio.addEventListener('ended', function() {
-		if(audio){
-			this.currentTime = 0;
-			this.play();
+	this.audio.addEventListener('ended', function() {
+		if(audioLoop.isPlaying){
+			audioLoop.currentTime = 0;
+			audioLoop.audio.play();
 		}
-	}, false);
-	audio.play();
-	return {
-		'audio': audio,
-		'pause': function(){
-			isPlaying = false;
-			audio.pause();
-		},
-		'play': function(){
-			isPlaying = true;
-			audio.play();
-		}
-	}
-}
+	}, false);*/
+};
+
+AudioLoop.prototype.pause = function(){
+	this.isPlaying = false;
+	this.audio.pause();
+};
+
+AudioLoop.prototype.play = function(){
+	this.isPlaying = true;
+	this.audio.play();
+};
 
 var Compositor = function(canvasElement){
 	this.el = canvasElement;
@@ -143,7 +143,6 @@ var Compositor = function(canvasElement){
 };
 
 Compositor.prototype.render = function(){
-		this.add(["Build: " + BUILD_ITERATION],["xxxxxxx" + BUILD_ITERATION], SCREEN_WIDTH - BUILD_ITERATION.length - 7,0);
 		var ctx = this.el.getContext("2d");
 		
 		ctx.fillStyle = "white";
@@ -323,6 +322,8 @@ var Room = function(room_data){
 		}
 	}
 	this.player = new Actor(room_data.players[0]);
+	if(room_data.hasOwnProperty('music'))
+		this.music = room_data.music;
 	this.add(this.player);
 };
 
@@ -581,7 +582,7 @@ var Game = function(canvasEl, game_data){
 	if(this.modes.hasOwnProperty("title")){
 		this.modes.title = new TitleScreen(this.modes.title, this);
 	}
-	this.activeMode = this.modes.title;
+	this.switchMode('title');
 	
 	// true if holding down WASD repeats presses
 	this.repeatPressMovementKeys = true;
@@ -621,7 +622,13 @@ Game.prototype.handleInput = function(key){
 
 Game.prototype.switchMode = function(modeName){
 	if(this.modes.hasOwnProperty(modeName)){
+		if(this.activeMode && this.activeMode.onExitMode !== undefined)
+			this.activeMode.onExitMode();
+			
 		this.activeMode = this.modes[modeName];
+		
+		if(this.activeMode.onEnterMode !== undefined)
+			this.activeMode.onEnterMode();
 		
 		// HACK: Some sprites stop playing when you switch modes... 
 		// so restart them all
@@ -665,6 +672,10 @@ var World = function(world_data, game){
 	}
 	this.room = new Room(world_data.rooms[0]);
 	this.player = this.room.player;
+	if(this.room.hasOwnProperty('music'))
+		this.music = new AudioLoop(this.room.music);
+	else
+		this.music = undefined;
 	
 	this.game = game;
 	this.player.world = this;
@@ -695,6 +706,18 @@ World.prototype.handleInput = function(key){
 	else
 		this.player.handleInput(key);
 };
+
+World.prototype.onEnterMode = function(){
+	console.log("ENTER");
+	console.log(this.music);
+	if(this.music !== undefined)
+		this.music.play();
+}
+
+World.prototype.onExitMode = function(){
+	if(this.music !== undefined)
+		this.music.pause();
+}
 
 var HUD = function(world, game){
 
@@ -910,6 +933,7 @@ HUDMenu.prototype.handleInput = function(key){
 var TitleScreen = function(data, game){
 	this.game = game;
 	this.data = data;
+	this.music = new AudioLoop(data.music);
 	
 	this.objects = [];
 	for(var i=0;i<this.data.objects.length;i++){
@@ -932,12 +956,30 @@ TitleScreen.prototype.draw = function(compositor){
 			this.objects[i].location[1]
 		);
 	}
+	compositor.add(
+		["Iteration: " + ITERATION],
+		["xxxxxxxxxxx" + ITERATION], 
+		SCREEN_WIDTH - ITERATION.length - 11 - 1,
+		1
+	);
 };
 
 TitleScreen.prototype.handleInput = function(key){
 	this.game.switchMode('world');
 	play('select')
+};
+
+TitleScreen.prototype.onEnterMode = function(){
+	console.log(this.music);
+	if(this.music !== undefined)
+		this.music.play();
 }
+
+TitleScreen.prototype.onExitMode = function(){
+	if(this.music !== undefined)
+		this.music.pause();
+}
+
 
 // if WASD is down, mash move every 100ms (so we have regular continued movement)
 var keyPressers = {};

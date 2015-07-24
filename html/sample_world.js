@@ -397,6 +397,7 @@ var pkmnASCII = function(){
 				rooms: [
 					{
 						name:"Pallet Town",
+						music: 'sounds/Route_Theme_1_by_ALF.wav',
 						tiles: [
 							[water, water, water, water, water, water, water, water, water, water, water, water, water, water, water, water],
 							[water, water, water, water, water, water, water, water, water, water, water, water, water, water, water, water],
@@ -434,6 +435,7 @@ var pkmnASCII = function(){
 				]
 			},
 			title: {
+				music: 'sounds/Intro_by_ALF.wav',
 				objects:[
 					{
 						gameObject: start,
