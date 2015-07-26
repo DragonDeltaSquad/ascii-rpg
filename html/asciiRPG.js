@@ -845,7 +845,7 @@ HUD.prototype.handleInput = function(key){
 		case KeyEvent.DOM_VK_S:
 			if(this.yesno.isUp){
 				this.yesno.handleInput(key);
-			}else{
+			}else if(this.menuUp){
 				this.menu.handleInput(key);
 			}
 			break;
