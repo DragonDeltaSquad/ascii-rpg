@@ -117,7 +117,35 @@ var sample_data = {
 					},
 					properties: {
 						solid:true,
-						description: "It's a lock.",
+						inspect: function(actor){
+							var hud = actor.world.hud;
+							var keyOb_i = -1;
+							var keyObj = null;
+							for(var item_i=0;item_i< actor.bag.items.length;item_i++){
+								if(actor.bag.items[item_i].name === "key"){
+									keyOb_i = item_i;
+									keyObj = actor.bag.items[item_i];
+								}
+							}
+							hud.addMessage("It's a lock");
+							if(keyOb_i >= 0){	
+								hud.prompt("Do you want to unlock it with your key?", function(resp){
+									switch(resp){
+										case "YES":
+											keyObj.use(actor);
+											
+											// remove single use items
+											if(keyObj.singleUse === true)
+												actor.bag.items.splice(keyOb_i, 1);
+											break;
+										case "NO":
+											hud.addMessage("Ok, then");
+											break;
+									}
+								});
+							}
+								return "";
+						}
 					},
 				},
 				water: {

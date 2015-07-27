@@ -763,11 +763,8 @@ var HUD = function(world, game){
 	this.displayQueue = [];
 	this.message = "";
 	
-	this.addMessage("Ash: Whoa! Where am I?\n"+
-		"Oak: You are in the wonderful world of Pokemon!!");
-	this.prompt("Do you like it here?", function(resp){
-		hud.addMessage("then " + resp);
-	});
+	this.addMessage("Welcome to the ASCII world of Pokemon!!");
+	this.addMessage("Everything is drawn with letters, numbers, and symbols.");
 	
 	this.isUp = false;
 	this.menu = new HUDMenu([
