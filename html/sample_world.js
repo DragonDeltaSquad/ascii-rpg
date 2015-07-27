@@ -1,3 +1,15 @@
+var itemSprite = {
+	states:[
+		{frames: [
+			"  ,-`'`-,  \n"+
+			" /       \\ \n"+
+			" |---O---|\n"+
+			" \\#######/ \n"+
+			"  '=:;:='  \n"
+		], frameRate: 1},
+	],
+};
+
 var sample_data = {
 	modes: {
 		world: {
@@ -52,6 +64,15 @@ var sample_data = {
 					properties: {
 						solid:true,
 						description: "It's a wall.",
+					},
+				},
+				potion: {
+					name:"potion",
+					sprite: itemSprite,
+					properties: {
+						solid:true,
+						description: "It's a POTION.",
+						collectible: true,
 					},
 				},
 				water: {
@@ -359,11 +380,70 @@ var sample_data = {
 		}
 	}
 };
+
+
+
+var BagMode = function(game){
+	this.items = [];
+	this.category = 'items';
+	this.selectedCategory = 0;
+	
+	this.game = game;	
+};
+
+BagMode.prototype.draw = function(compositor){
+	var box = generateBox(SCREEN_WIDTH, SCREEN_HEIGHT);
+	compositor.clearFrame();
+	compositor.addText("BAG", 1, 2);
+	
+	compositor.addText("Category:", 1, 10);
+	var i = 15;
+	for(var category in this.bag){
+		if(category === this.category){
+			compositor.addText("> " + category, 1, i);
+		}else{
+			compositor.addText("  " + category, 1, i);
+		}
+		i += 2;
+	}
+	compositor.add(box.split('\n'), box.split('\n'), 0,0);
+};
+
+BagMode.prototype.handleInput = function(key){
+	switch(key)
+	{
+		case KeyEvent.DOM_VK_W:
+			play('selectChange');
+			break;
+		case KeyEvent.DOM_VK_S:
+			play('selectChange');
+			break;
+		case KeyEvent.DOM_VK_E:
+			play('select');
+			break;
+		case KeyEvent.DOM_VK_Q:
+			this.game.switchMode('world');
+			play('select');
+			break;
+	}
+};
+
+BagMode.prototype.onEnterMode = function(params){
+	this.actor = params.actor;
+	this.bag = this.actor.bag;
+}
+
+BagMode.prototype.onExitMode = function(){
+}
+
+
+
 var pkmnASCII = function(){
 	var gameObjects = sample_data.modes.world.gameObjects;
 	var actors = sample_data.modes.world.actors;
 
 	var wall = gameObjects.wall;
+	var potion = gameObjects.potion;
 	var water = gameObjects.water;
 	var ledgeR = gameObjects.ledgeR;
 	var ledgeD = gameObjects.ledgeD;
@@ -415,7 +495,7 @@ var pkmnASCII = function(){
 							[water, water, water, water, wall, wall, wall, grass, wall, wall, wall, water, water, wall, water, water],
 							[water, water, water, water, wall, empty, grass, grass, empty, empty, ledgeR, water, water, wall, water, water],
 							[water, water, water, water, wall, spinner, grass, grass, empty, empty, ledgeR, water, water, wall, water, water],
-							[water, water, water, water, wall, empty, grass, grass, grass, spinner, ledgeR, water, water, wall, water, water],
+							[water, water, water, water, wall, empty, potion, grass, grass, spinner, ledgeR, water, water, wall, water, water],
 							[water, water, water, water, wall, empty, grass, grass, grass, grass, ledgeR, water, water, wall, water, water],
 							[water, water, water, water, wall, empty, spinner, grass, grass, grass, ledgeRD, water, water, wall, water, water],
 							[water, water, water, water, wall, ledgeD, ledgeD, ledgeD, ledgeD, ledgeRD, water, water, water, wall, water, water],
@@ -466,7 +546,8 @@ var pkmnASCII = function(){
 						location: [18,6],
 					},
 				]
-			}
+			},
+			'bag': BagMode
 		}
 	};
 }();

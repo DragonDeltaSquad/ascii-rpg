@@ -1,4 +1,4 @@
-ITERATION = "1:Bulbasaur"
+REVISION = "1 (Bulbasaur)"
 
 // http://stackoverflow.com/a/21574562/4187005
 function fillTextMultiLine(ctx, text, x, y) {
@@ -350,6 +350,15 @@ Room.prototype.objectAt = function(x, y){
 	return null;
 }
 
+Room.prototype.removeGameObject = function(go, x, y){
+	for(var i=0;i<this.gameObjects.length;i++){
+		if(this.gameObjects[i].x == x && this.gameObjects[i].y == y){
+			this.gameObjects.splice(i, 1);
+		}
+	}
+	return null;
+}
+
 
 var sprites = {};
 var GameObject = function(game_object_data){
@@ -431,6 +440,13 @@ var Actor = function(actor_data){
 	this.direction = DOWN;
 	
 	this._moving = false;
+	
+	this.bag = {};
+	this.bag.items = [];
+	this.bag['TM/HM'] = [];
+	this.bag['MEDICINE'] = [];
+	this.bag['Poke Balls'] = [];
+
 	this.world = null;
 };
 
@@ -570,17 +586,27 @@ Actor.prototype.inspect = function(){
 			this.world.hud.addMessage(msg);
 			play('select');
 		}
+		if(go.collectible){
+			this.bag.items.push(go);
+			this.room.removeGameObject(go, x, y);
+		}
 	}
 };
 
 var Game = function(canvasEl, game_data){
 	this.modes = game_data.modes;
 	this.compositor = new Compositor(canvasEl);
-	if(this.modes.hasOwnProperty("world")){
-		this.modes.world = new World(this.modes.world, this);
-	}
-	if(this.modes.hasOwnProperty("title")){
-		this.modes.title = new TitleScreen(this.modes.title, this);
+	for(var mode in this.modes){
+		switch(mode){
+			case 'world':
+				this.modes.world = new World(this.modes.world, this);
+				break;
+			case 'title':
+				this.modes.title = new TitleScreen(this.modes.title, this);
+				break;
+			default:
+				this.modes[mode] = new this.modes[mode](this)
+		}	
 	}
 	this.switchMode('title');
 	
@@ -620,7 +646,7 @@ Game.prototype.handleInput = function(key){
 		this.activeMode.handleInput(key);
 };
 
-Game.prototype.switchMode = function(modeName){
+Game.prototype.switchMode = function(modeName, params){
 	if(this.modes.hasOwnProperty(modeName)){
 		if(this.activeMode && this.activeMode.onExitMode !== undefined)
 			this.activeMode.onExitMode();
@@ -628,7 +654,7 @@ Game.prototype.switchMode = function(modeName){
 		this.activeMode = this.modes[modeName];
 		
 		if(this.activeMode.onEnterMode !== undefined)
-			this.activeMode.onEnterMode();
+			this.activeMode.onEnterMode(params);
 		
 		// HACK: Some sprites stop playing when you switch modes... 
 		// so restart them all
@@ -707,7 +733,7 @@ World.prototype.handleInput = function(key){
 		this.player.handleInput(key);
 };
 
-World.prototype.onEnterMode = function(){
+World.prototype.onEnterMode = function(params){
 	console.log("ENTER");
 	console.log(this.music);
 	if(this.music !== undefined)
@@ -752,6 +778,10 @@ var HUD = function(world, game){
 			{
 				case "EXIT":
 					hud.game.switchMode('title');
+					hud.menuUp = false;
+					break;
+				case "BAG":
+					hud.game.switchMode('bag', {'actor': hud.game.modes.world.player});
 					hud.menuUp = false;
 					break;
 				default:
@@ -957,9 +987,9 @@ TitleScreen.prototype.draw = function(compositor){
 		);
 	}
 	compositor.add(
-		["Iteration: " + ITERATION],
-		["xxxxxxxxxxx" + ITERATION], 
-		SCREEN_WIDTH - ITERATION.length - 11 - 1,
+		["Revision " + REVISION],
+		["Revisionx" + REVISION], 
+		SCREEN_WIDTH - REVISION.length - 11 - 1,
 		1
 	);
 };
@@ -969,7 +999,7 @@ TitleScreen.prototype.handleInput = function(key){
 	play('select')
 };
 
-TitleScreen.prototype.onEnterMode = function(){
+TitleScreen.prototype.onEnterMode = function(params){
 	console.log(this.music);
 	if(this.music !== undefined)
 		this.music.play();
