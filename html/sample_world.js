@@ -73,6 +73,10 @@ var sample_data = {
 						solid:true,
 						description: "It's a POTION.",
 						collectible: true,
+						use: function(actor){
+							actor.world.hud.addMessage(actor.name + " used a Potion");
+						},
+						singleUse: true,
 					},
 				},
 				water: {
@@ -384,9 +388,13 @@ var sample_data = {
 
 
 var BagMode = function(game){
+	this.selectMode = 'category';
+	
+	this.selectedCategory = -1;
+	this.categories = [];
+	
+	this.selectedItem = -1;
 	this.items = [];
-	this.category = 'items';
-	this.selectedCategory = 0;
 	
 	this.game = game;	
 };
@@ -394,43 +402,118 @@ var BagMode = function(game){
 BagMode.prototype.draw = function(compositor){
 	var box = generateBox(SCREEN_WIDTH, SCREEN_HEIGHT);
 	compositor.clearFrame();
-	compositor.addText("BAG", 1, 2);
+	compositor.addText("BAG", 2, 2);
 	
-	compositor.addText("Category:", 1, 10);
-	var i = 15;
+	if(this.selectMode === 'category')
+		compositor.addText("[Category:]", 2, 5);
+	else
+		compositor.addText(" Category: ", 2, 5);
+	var i = 8;
 	for(var category in this.bag){
-		if(category === this.category){
-			compositor.addText("> " + category, 1, i);
+		if(category === this.categories[this.selectedCategory]){
+			compositor.addText("> " + category, 2, i);
 		}else{
-			compositor.addText("  " + category, 1, i);
+			compositor.addText("  " + category, 2, i);
 		}
 		i += 2;
 	}
+	
+	if(this.selectMode === 'item')
+		compositor.addText("[Item:]", 50, 5);
+	else
+		compositor.addText(" Item: ", 50, 5);
+	i = 8;
+	for(var item_i=0; item_i< this.items.length; item_i++){
+		var item = this.items[item_i];
+		if(item_i == this.selectedItem)
+			compositor.addText("> " + item.name, 50, i);
+		else
+			compositor.addText("  " + item.name, 50, i);
+		i += 2;
+	}
+	
 	compositor.add(box.split('\n'), box.split('\n'), 0,0);
 };
 
 BagMode.prototype.handleInput = function(key){
+	var numCategories = this.categories.length;
+	var numItems = this.items.length;
 	switch(key)
 	{
 		case KeyEvent.DOM_VK_W:
+			if(this.selectMode === 'category'){
+				this.selectedCategory = (this.selectedCategory - 1 + numCategories) % numCategories;
+				this.items = this.bag[this.categories[this.selectedCategory]];
+			}else if(this.selectMode === 'item'){
+				if(numItems > 0)
+					this.selectedItem = (this.selectedItem - 1 + numItems) % numItems;
+			}
 			play('selectChange');
 			break;
 		case KeyEvent.DOM_VK_S:
+			if(this.selectMode === 'category'){
+				this.selectedCategory = (this.selectedCategory + 1 + numCategories) % numCategories;
+				this.items = this.bag[this.categories[this.selectedCategory]];
+			}else if(this.selectMode === 'item'){
+				if(numItems > 0)
+					this.selectedItem = (this.selectedItem - 1 + numItems) % numItems;
+			}
 			play('selectChange');
 			break;
+		case KeyEvent.DOM_VK_A:
+			if(this.selectMode === 'item'){
+					this.selectMode = 'category';
+					play('selectChange');
+				}
+			break;
+		case KeyEvent.DOM_VK_D:
+			if(this.selectMode === 'category'){
+					this.selectMode = 'item';
+					play('selectChange');
+				}
+			break;
 		case KeyEvent.DOM_VK_E:
+			if(this.selectMode === 'category'){
+				this.selectMode = 'item';
+			}else if(this.selectMode === 'item'){
+				if(this.selectedItem >= 0){
+					if(this.items[this.selectedItem].hasOwnProperty('use')){
+						this.items[this.selectedItem].use(this.actor);
+						
+						// remove single use items
+						if(this.items[this.selectedItem].singleUse === true){
+							this.items.splice(this.selectedItem, 1);
+						}
+					}
+					this.game.switchMode('world');
+				}
+			}
 			play('select');
 			break;
 		case KeyEvent.DOM_VK_Q:
-			this.game.switchMode('world');
+			if(this.selectMode === 'item')
+				this.selectMode = 'category';
+			else
+				this.game.switchMode('world');
 			play('select');
 			break;
 	}
 };
-
+ 
 BagMode.prototype.onEnterMode = function(params){
 	this.actor = params.actor;
 	this.bag = this.actor.bag;
+	
+	this.categories = Object.keys(this.bag);
+	if(this.categories.length > 0){
+		this.selectedCategory = 0;
+		this.items = this.bag[this.categories[0]];
+		if(this.items.length > 0){
+			this.selectedItem = 0;
+		}else
+			this.selectedItem = -1;
+	}else
+		this.selectedCategory = -1;
 }
 
 BagMode.prototype.onExitMode = function(){
@@ -485,7 +568,7 @@ var pkmnASCII = function(){
 							[water, water, water, water, water, water, water, water, water, water, water, water, water, water, water, water],
 							[water, water, water, water, water, water, water, wall, wall, wall, wall,  water, water, wall, water, water],
 							[water, water, water, water, water, ledgeLU, ledgeU, ledgeR, water, water,  water, water, water, wall, water, water],
-							[water, water, water, water, water, ledgeL, grass, ledgeR, water, ledgeLU,ledgeU, ledgeRU, water, wall, water, water],
+							[water, water, water, water, water, ledgeL, potion, ledgeR, water, ledgeLU,ledgeU, ledgeRU, water, wall, water, water],
 							[water, water, water, water, water, ledgeL, grass, ledgeR, water, ledgeL, spinner, ledgeRD, water, wall, water, water],
 							[water, water, water, water, wall, empty, grass, empty, ledgeU, grass, ledgeR, water, water, wall, water, water],
 							[water, water, water, water, wall, empty, grass, grass, ledgeD,  empty,  empty, ledgeRU, water, wall, water, water],

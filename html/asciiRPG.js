@@ -376,6 +376,8 @@ var GameObject = function(game_object_data){
 	this.description = "";
 	
 	if(game_object_data !== undefined){
+		this.name = game_object_data.name;
+
 		if(sprites.hasOwnProperty(game_object_data.name)){
 			this.sprite = sprites[game_object_data.name];
 		}else{
@@ -734,8 +736,6 @@ World.prototype.handleInput = function(key){
 };
 
 World.prototype.onEnterMode = function(params){
-	console.log("ENTER");
-	console.log(this.music);
 	if(this.music !== undefined)
 		this.music.play();
 }
@@ -782,7 +782,6 @@ var HUD = function(world, game){
 					break;
 				case "BAG":
 					hud.game.switchMode('bag', {'actor': hud.game.modes.world.player});
-					hud.menuUp = false;
 					break;
 				default:
 					hud.addMessage(selectedItem + " is not available.");
@@ -1000,7 +999,6 @@ TitleScreen.prototype.handleInput = function(key){
 };
 
 TitleScreen.prototype.onEnterMode = function(params){
-	console.log(this.music);
 	if(this.music !== undefined)
 		this.music.play();
 }
