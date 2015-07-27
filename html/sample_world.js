@@ -3,7 +3,7 @@ var itemSprite = {
 		{frames: [
 			"  ,-`'`-,  \n"+
 			" /       \\ \n"+
-			" |---O---|\n"+
+			" |---O---| \n"+
 			" \\#######/ \n"+
 			"  '=:;:='  \n"
 		], frameRate: 1},
@@ -77,6 +77,47 @@ var sample_data = {
 							actor.world.hud.addMessage(actor.name + " used a Potion");
 						},
 						singleUse: true,
+					},
+				},
+				key: {
+					name:"key",
+					sprite: itemSprite,
+					properties: {
+						solid:true,
+						description: "It's a key.",
+						collectible: true,
+						use: function(actor){
+							var room = actor.room;
+							var nextOb = actor.nextObject()
+							if(nextOb.name === 'lock'){
+								actor.world.hud.addMessage(actor.name + " opened the lock");
+								setTimeout(function(){
+									actor.room.removeGameObject(nextOb, nextOb.x, nextOb.y);
+									play('unlock');
+								}, 1000);
+							}else{
+								actor.world.hud.addMessage("nothing happened...");
+							}
+						},
+						singleUse: true,
+					},
+				},
+				lock: {
+					name:"lock",
+					sprite:{
+						states:[
+							{frames: [
+								" /``````\\ \n"+
+								"|\\------/|\n"+
+								"|  (  )  |\n"+
+								"|  /__\\  |\n"+
+								" \\______/ \n",
+							], frameRate: 1.5},
+						],
+					},
+					properties: {
+						solid:true,
+						description: "It's a lock.",
 					},
 				},
 				water: {
@@ -541,6 +582,10 @@ var pkmnASCII = function(){
 	var grass = gameObjects.grass;
 	var player = actors.player;
 	
+	
+	var key = gameObjects.key;
+	var lock = gameObjects.lock;
+	
 	var title = gameObjects.title;
 	var start = gameObjects.start;
 	
@@ -571,11 +616,11 @@ var pkmnASCII = function(){
 							[water, water, water, water, water, ledgeL, potion, ledgeR, water, ledgeLU,ledgeU, ledgeRU, water, wall, water, water],
 							[water, water, water, water, water, ledgeL, grass, ledgeR, water, ledgeL, spinner, ledgeRD, water, wall, water, water],
 							[water, water, water, water, wall, empty, grass, empty, ledgeU, grass, ledgeR, water, water, wall, water, water],
-							[water, water, water, water, wall, empty, grass, grass, ledgeD,  empty,  empty, ledgeRU, water, wall, water, water],
+							[water, water, water, water, wall, empty, grass, grass, ledgeD,  empty,  key, ledgeRU, water, wall, water, water],
 							[water, water, water, water, wall, empty, grass, ledgeR, water, ledgeLD,ledgeD, ledgeRD, water, wall, water, water],
 							[water, water, water, water, wall, empty, grass, ledgeR, water, water, water, water, water, wall, water, water],
 							[water, water, water, water, wall, empty, grass, ledgeR, water, water, water, water, water, wall, water, water],
-							[water, water, water, water, wall, wall, wall, grass, wall, wall, wall, water, water, wall, water, water],
+							[water, water, water, water, wall, wall, wall, lock, wall, wall, wall, water, water, wall, water, water],
 							[water, water, water, water, wall, empty, grass, grass, empty, empty, ledgeR, water, water, wall, water, water],
 							[water, water, water, water, wall, spinner, grass, grass, empty, empty, ledgeR, water, water, wall, water, water],
 							[water, water, water, water, wall, empty, potion, grass, grass, spinner, ledgeR, water, water, wall, water, water],

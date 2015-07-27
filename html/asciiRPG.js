@@ -101,6 +101,7 @@ var sfx = {
 	menuUp: 'sounds/menuUp.wav',
 	menuDown: 'sounds/menuDown.wav',
 	selectChange: 'sounds/selectChange.wav',
+	unlock: 'sounds/select.wav',
 };
 var play = function(sound){
 	if(sfx.hasOwnProperty(sound)){
@@ -560,7 +561,8 @@ Actor.prototype.handleInput = function(key){
 	}
 };
 
-Actor.prototype.inspect = function(){
+Actor.prototype.nextObject = function(){
+	
 	var x;
 	var y;
 	switch(this.direction){
@@ -581,7 +583,11 @@ Actor.prototype.inspect = function(){
 			y = this.y;
 			break;
 	}
-	var go = this.room.objectAt(x, y);
+	return this.room.objectAt(x, y);
+};
+
+Actor.prototype.inspect = function(){
+	var go = this.nextObject();
 	if(go !== null){
 		var msg = go.inspect(this);
 		if(msg.trim() !== ""){
@@ -590,7 +596,7 @@ Actor.prototype.inspect = function(){
 		}
 		if(go.collectible){
 			this.bag.items.push(go);
-			this.room.removeGameObject(go, x, y);
+			this.room.removeGameObject(go, go.x, go.y);
 		}
 	}
 };
