@@ -18,7 +18,7 @@
         /___/   |_| |____/  |_| |_| `._,,'      |_|  \_||____|   |_|            
                                                                                 
                                                                               
-# pokemon-ash-key-2
+# pokemon-ash-key
 ASCII rendered, Pokemon inspired MMORPG
 
 Explore territory, catch pokemon battle trainers... in a land of ASCII characters.
