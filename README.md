@@ -21,4 +21,6 @@
 # pokemon-ash-key
 ASCII rendered, Pokemon inspired MMORPG
 
+## [play now](http://karma-tech-consulting.github.io/pokemon-ash-key/)
+
 Explore territory, catch pokemon battle trainers... in a land of ASCII characters.
