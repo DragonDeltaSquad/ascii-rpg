@@ -1,4 +1,4 @@
-REVISION = "1 (Bulbasaur)"
+REVISION = "1"
 
 // http://stackoverflow.com/a/21574562/4187005
 function fillTextMultiLine(ctx, text, x, y) {
@@ -446,9 +446,6 @@ var Actor = function(actor_data){
 	
 	this.bag = {};
 	this.bag.items = [];
-	this.bag['TM/HM'] = [];
-	this.bag['MEDICINE'] = [];
-	this.bag['Poke Balls'] = [];
 
 	this.world = null;
 };
@@ -768,19 +765,14 @@ var HUD = function(world, game){
 	this.displayQueue = [];
 	this.message = "";
 	
-	this.addMessage("Welcome to the ASCII world of Pokemon!! (Press E to Continue)");
+	this.addMessage("Welcome to the ASCII RPG world!! (Press E to Continue)");
     this.addMessage("Everything is drawn with letters, numbers, and symbols.");
     this.addMessage("Use the arrow keys or WASD to move.");
     
 	
 	this.isUp = false;
 	this.menu = new HUDMenu([
-			"POKeDEX",
-			"POKeMON",
 			"BAG",
-			"ASH",
-			"SAVE",
-			"OPTIONS",
 			"EXIT"
 		],
 		function(selectedItem){
