@@ -580,7 +580,7 @@ BagMode.prototype.onExitMode = function(){
 
 
 
-var pkmnASCII = function(){
+var gameData = function(){
 	var gameObjects = sample_data.modes.world.gameObjects;
 	var actors = sample_data.modes.world.actors;
 
@@ -619,10 +619,10 @@ var pkmnASCII = function(){
 	return {
 		modes: {
 			world: {
-				name:"Pokemon Ash Key",
+				name:"ASCII RPG",
 				rooms: [
 					{
-						name:"Pallet Town",
+						name:"Demo level",
 						//music: 'sounds/Route_Theme_1_by_ALF.wav',
 						tiles: [
 							[water, water, water, water, water, water, water, water, water, water, water, water, water, water, water, water],
