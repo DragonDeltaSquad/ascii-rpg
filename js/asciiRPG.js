@@ -537,18 +537,23 @@ Actor.prototype.move = function(direction, _countdown){
 };
 
 Actor.prototype.handleInput = function(key){
-	//basic WASD movement
+	// basic WASD movement
+    
 	switch(key){
-		case 87: //up
+        case 38: //up arrow
+		case 87: //up 'w'
 			this.move(UP);
 			break;
-		case 83: //down
+        case 40: //down arrow
+		case 83: //down 's'
 			this.move(DOWN);
 			break;
-		case 65: //left
+        case 37: //left arrow
+		case 65: //left 'a'
 			this.move(LEFT);
 			break;
-		case 68: //right
+        case 39: //right arrow
+		case 68: //right 'd'
 			this.move(RIGHT);
 			break;
 		case KeyEvent.DOM_VK_E:
@@ -763,8 +768,10 @@ var HUD = function(world, game){
 	this.displayQueue = [];
 	this.message = "";
 	
-	this.addMessage("Welcome to the ASCII world of Pokemon!!");
-	this.addMessage("Everything is drawn with letters, numbers, and symbols.");
+	this.addMessage("Welcome to the ASCII world of Pokemon!! (Press E to Continue)");
+    this.addMessage("Everything is drawn with letters, numbers, and symbols.");
+    this.addMessage("Use the arrow keys or WASD to move.");
+    
 	
 	this.isUp = false;
 	this.menu = new HUDMenu([
@@ -1017,23 +1024,31 @@ var keyPressers = {};
 
 $(document).keydown(function(event){
 	switch(event.keyCode){
-		case 87: //up
-		case 83: //down
-		case 65: //left
-		case 68: //right
+        case 87: //up 'w'
+		case 38: //up arrow
+        case 83: //down 's'
+		case 40: //down arrow
+        case 65: //left 'a'
+		case 37: //left arrow
+        case 68: //right 'd'
+		case 39: //right arrow
+            // if a keypresser is already pressing the key don't re-trigger
 			if(keyPressers[event.keyCode]){
 				return;
 			}
+            //send gameHandleInput movement related keycode
 			game.handleInput(event.keyCode);
+            
 			if(game.repeatPressMovementKeys)
 				keyPressers[event.keyCode] = setInterval(function(){game.handleInput(event.keyCode);}, 100);
 			else
 				keyPressers[event.keyCode] = true;
 			break;
 		default:
-			if(keyPressers[event.keyCode]){
+            if(keyPressers[event.keyCode]){
 				return;
 			}
+            // give game handleInput anyway?
 			game.handleInput(event.keyCode);
 			keyPressers[event.keyCode] = true;
 			break;
@@ -1042,10 +1057,14 @@ $(document).keydown(function(event){
 
 $(document).keyup(function(event){
 	switch(event.keyCode){
-		case 87: //up
-		case 83: //down
-		case 65: //left
-		case 68: //right
+		case 87: //up 'w'
+        case 38: //up arrow
+        case 83: //down 's'
+        case 40: //down arrow
+        case 65: //left 'a'
+        case 37: //left arrow
+        case 68: //right 'd'
+        case 39: //right arrow
 			clearInterval(keyPressers[event.keyCode]);
 			keyPressers[event.keyCode] = null;
 			break;
@@ -1087,6 +1106,7 @@ var asciiRPG = {
 }
 
 
+// this should be seperate file and or above everything else, since its used within functions etc
 // http://stackoverflow.com/a/1465409/4187005
 if (typeof KeyEvent == "undefined") {
     var KeyEvent = {
