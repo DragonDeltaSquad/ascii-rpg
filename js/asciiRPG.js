@@ -214,7 +214,7 @@ Sprite.prototype.getMap = function(){
 
 var AnimatedSprite = function(sprite_data, options){
 	Sprite.call(this);
-	
+
 	this.image = jQuery.extend(true, [], sprite_data.states);
 	this.map = jQuery.extend(true, [], sprite_data.states);
 	
@@ -315,14 +315,14 @@ var Room = function(room_data){
 		this.tiles.push([]);
 		for(var col_i=0;col_i < row.length; col_i++){
 			var go_data = row[col_i];
-			var go = new GameObject(go_data);
+			var go = new GameObject(gameObjects[go_data]);
 			go.y = row_i*TILE_HEIGHT;
 			go.x = col_i*TILE_WIDTH;
 			this.add(go);
 			this.tiles[row_i].push(go);
 		}
 	}
-	this.player = new Actor(room_data.players[0]);
+	this.player = new Actor(room_data.actors[0]);
 	if(room_data.hasOwnProperty('music'))
 		this.music = room_data.music;
 	this.add(this.player);
@@ -361,7 +361,7 @@ Room.prototype.removeGameObject = function(go, x, y){
 }
 
 
-var sprites = {};
+var spriteObjects = {};
 var GameObject = function(game_object_data){
 	this.x = 0;
 	this.y = 0;
@@ -375,16 +375,16 @@ var GameObject = function(game_object_data){
 	this.mayExitDirections = [UP,DOWN,LEFT,RIGHT];
 
 	this.description = "";
-	
+
 	if(game_object_data !== undefined){
 		this.name = game_object_data.name;
 
-		if(sprites.hasOwnProperty(game_object_data.name)){
-			this.sprite = sprites[game_object_data.name];
+		if(spriteObjects.hasOwnProperty(game_object_data.name)){
+			this.sprite = spriteObjects[game_object_data.name];
 		}else{
-			this.sprite = new AnimatedSprite(game_object_data.sprite);
+			this.sprite = new AnimatedSprite(sprites[game_object_data.sprite]);
 			this.sprite.name = game_object_data.name;
-			sprites[game_object_data.name] = this.sprite;
+			spriteObjects[game_object_data.name] = this.sprite;
 		}
 
 		if(game_object_data.properties !== undefined){
@@ -434,9 +434,9 @@ GameObject.prototype.inspect = function(actor){
 
 
 var Actor = function(actor_data){
-	GameObject.call(this, actor_data.player);
-	
-	this.sprite = new AnimatedSprite(actor_data.player.sprite, {'autostart': false});
+	GameObject.call(this, gameObjects[actor_data.gameObject]);
+
+	//this.sprite = new AnimatedSprite(sprites[actor_data.sprite], {'autostart': false});
 	this.x = actor_data.location[0]*TILE_WIDTH;
 	this.y = actor_data.location[1]*TILE_HEIGHT;
 	
@@ -969,7 +969,7 @@ var TitleScreen = function(data, game){
 	this.objects = [];
 	for(var i=0;i<this.data.objects.length;i++){
 		this.objects.push({
-			'gameObject': new GameObject(this.data.objects[i].gameObject),
+			'gameObject': new GameObject(gameObjects[this.data.objects[i].gameObject]),
 			'location': this.data.objects[i].location,
 		});
 	}

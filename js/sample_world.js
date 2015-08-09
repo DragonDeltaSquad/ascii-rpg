@@ -1,449 +1,472 @@
-var itemSprite = {
-	states:[
-		{frames: [
-			"  ,-`'`-,   \n"+
-			" / |---| \\ \n"+
-			" | | * | | \n"+
-			" \\ |---| / \n"+
-			"  '-.,.-'  \n"
-		], frameRate: 1},
-	],
+var sprites = {
+	item: {
+		states:[
+			{frames: [
+				"  ,-`'`-,   \n"+
+				" / |---| \\ \n"+
+				" | | * | | \n"+
+				" \\ |---| / \n"+
+				"  '-.,.-'  \n"
+			], frameRate: 1},
+		],
+	},
+	grass: {
+		states:[
+			{frames: [
+				", , , , , \n"+
+				" , , , , ,\n"+
+				", , , , , \n"+
+				" , , , , ,\n"+
+				", , , , , \n",
+				
+				", . , , . \n"+
+				" , . , , ,\n"+
+				", , , . , \n"+
+				" , . , , ,\n"+
+				", , , . , \n"
+			], frameRate: 1},
+		]
+	},
+	empty: {
+		states:[
+			{frames: [
+				"          \n"+
+				"          \n"+
+				"          \n"+
+				"          \n"+
+				"          \n"
+			], frameRate: 1},
+		]
+	},
+	wall: {
+		states:[
+			{frames: [
+				" /``````\\ \n"+
+				"|\\______/|\n"+
+				"|        |\n"+
+				"|        |\n"+
+				" \\______/ \n"
+			], frameRate: 1},
+		],
+	},
+	lock: {
+		states:[
+			{frames: [
+				" /``````\\ \n"+
+				"|\\------/|\n"+
+				"|  (  )  |\n"+
+				"|  /__\\  |\n"+
+				" \\______/ \n",
+			], frameRate: 1.5},
+		],
+	},
+	water: {
+		states:[
+			{frames: [
+				"      ;   \n"+
+				"       `.,\n"+
+				"`;,       \n"+
+				"  ;,      \n"+
+				"   `-..   \n",
+				
+				"   ;      \n"+
+				"    `.,   \n"+
+				"       `;,\n"+
+				",        ;\n"+
+				"`-..      \n",
+				
+				";         \n"+
+				" `.,      \n"+
+				"    `;,   \n"+
+				"      ;,  \n"+
+				".      `-.\n",
+			], frameRate: 1.5},
+		],
+	},
+	ledgeR: {
+		states:[
+			{frames: [
+				"         ;\n"+
+				"        .;\n"+
+				"         ;\n"+
+				"        .;\n"+
+				"        -;\n"
+			], frameRate: 1.5},
+		],
+	},
+	ledgeL: {
+		states:[
+			{frames: [
+				";         \n"+
+				";.        \n"+
+				";         \n"+
+				";.        \n"+
+				";-        \n"
+			], frameRate: 1.5},
+		],
+	},
+	ledgeU: {
+		states:[
+			{frames: [
+				"-,---.--,-\n"+
+				"          \n"+
+				"          \n"+
+				"          \n"+
+				"          \n"
+			], frameRate: 1.5},
+		],
+	},
+	ledgeD: {
+		states:[
+			{frames: [
+				"          \n"+
+				"          \n"+
+				"          \n"+
+				"          \n"+
+				"_;__;___;_\n"
+			], frameRate: 1.5},
+		],
+	},
+	ledgeRD: {
+		states:[
+			{frames: [
+				"         ;\n"+
+				"        .;\n"+
+				"         ;\n"+
+				"        .;\n"+
+				"_;__;___;;\n"
+			], frameRate: 1.5},
+		],
+	},
+	ledgeRU: {
+		states:[
+			{frames: [
+				"-,---.---;\n"+
+				"         ;\n"+
+				"         ;\n"+
+				"        .;\n"+
+				"        -;\n"
+			], frameRate: 1.5},
+		],
+	},
+	ledgeLU: {
+		states:[
+			{frames: [
+				";----.---;\n"+
+				";.        \n"+
+				";         \n"+
+				";.        \n"+
+				";-        \n"
+			], frameRate: 1.5},
+		],
+	},
+	ledgeLD: {
+		states:[
+			{frames: [
+				";         \n"+
+				";.        \n"+
+				";         \n"+
+				";.        \n"+
+				";;__;___;_\n"
+			], frameRate: 1.5},
+		],
+	},
+	spinner: {
+		states:[
+			{frames: [
+				"     ,    \n"+
+				"     ;    \n"+
+				"  ,;` `;, \n"+
+				"    _|_   \n"+
+				"   |___|  \n",
+				
+				"       ,  \n"+
+				"      ,'  \n"+
+				"  ``` ;,  \n"+
+				"    _|_ ` \n"+
+				"   |___|  \n",
+				
+				"          \n"+
+				"  `-  .-` \n"+
+				"    `;`   \n"+
+				"    _;_   \n"+
+				"   |___|  \n",
+				
+				"   ,      \n"+
+				"   ',     \n"+
+				"    ,;``` \n"+
+				"   `_|_   \n"+
+				"   |___|  \n"
+			], frameRate: 10},
+		],
+	},
+	start: {
+		states:[
+			{frames: [
+				"Press any key.    \n",
+				"Press any key..   \n",
+				"Press any key...  \n",
+				"                  \n",
+			], frameRate: 2},
+		]
+	},
+	star: {
+		states:[
+			{frames: [
+				"          \n"+
+				"          \n"+
+				"          \n"+
+				"          \n"+
+				"          \n",
+				"          \n"+
+				"          \n"+
+				"     *    \n"+
+				"          \n"+
+				"          \n",
+				"          \n"+
+				"     |    \n"+
+				"   --*--  \n"+
+				"     |    \n"+
+				"          \n",
+				"     |    \n"+
+				"    \\|/   \n"+
+				" ----*----\n"+
+				"    /|\\   \n"+
+				"     |    \n",
+			], frameRate: 4},
+		]
+	},
+	title: {
+		states:[
+			{frames: [
+				"      ____   _____     ___   _   _      ____     ____       ___    \n" +
+				"     /    | /  ___|  /  __| | | | |    |  _  \\  |  _  \\   /  __|   \n" +
+				"    /  _  | | (_    |  /    | | | |    | | |  | | | |  | |  /      \n" +
+				"   /  /_| |  \\_ `,  | |     | | | |    | |/  /  | |_|  | | |  ____ \n" +
+				"  /   ___ |  __)  \\ |  \\__  | | | |    |  _ \\   | ____/  | | |_  _|\n" +
+				" /   /  | | |     | |     | | | | |    | | \\ \\  | |      |  \\__||  \n" +
+				"/___/   |_| |____/   \\____| |_| |_|    |_|  \\_\\ |_|       \\_____|  "
+			], frameRate: 1},
+		]
+	},
+	player: {
+		states:[
+			{
+				frames: [
+					"   ___    \n  /mmm\\   \n  \\@,@/   \n   Omm'   \n   ` n    \n",
+					"   ___    \n  /mmm\\   \n  \\@,@/   \n q mmm p  \n   n n    \n",
+					"   ___   \n  /mmm\\  \n  \\-.-/  \n  'mmO   \n   n `   \n",
+					"   ___    \n  /mmm\\   \n  \\@,@/   \n q mmm p  \n   n n    \n"
+				],
+				frameRate: 8
+			},
+			{
+				frames: [
+					"   ___    \n _/mmm\\   \n |6\\\\)/   \n  `mOn    \n  \\   b   \n",
+					"   ___    \n _/mmm\\   \n |6\\\\)/   \n  `mOn    \n   dd     \n",
+					"   ___   \n _/mmm\\  \n |-\\\\)/  \n  `mOn   \n  \\   b  \n",
+					"   ___    \n _/mmm\\   \n |6\\\\)/   \n  `mOn    \n   dd     \n"
+				],
+				frameRate: 8
+			},
+			{
+				frames: [
+					"   ___    \n  /mmm\\_  \n  \\(//6|  \n   nOm`   \n   d   /  \n",
+					"   ___    \n  /mmm\\_  \n  \\(//6|  \n   nOm`   \n    bb    \n",
+					"   ___   \n  /mmm\\_ \n  \\(//-| \n   nOm`  \n   d   / \n",
+					"   ___    \n  /mmm\\_  \n  \\(//6|  \n   nOm`   \n    bb    \n"
+				],
+				frameRate: 8
+			},
+			{
+				frames: [
+					"   ___    \n  /-_-\\   \n  \\mmm/   \n  dmOm    \n   ` ,    \n",
+					"   ___    \n  /-_-\\   \n  \\mmm/   \n   mOm    \n   , ,    \n",
+					"   ___   \n  /-_-\\  \n  \\mmm/  \n   mOmb  \n   , `   \n",
+					"   ___    \n  /-_-\\   \n  \\mmm/   \n   mOm    \n   , ,    \n"
+				], 
+				frameRate: 8
+			},
+		],
+	},
 };
 
-var sample_data = {
-	modes: {
-		world: {
-			gameObjects : {
-				grass: {
-					name:"grass",
-					sprite:{
-						states:[
-							{frames: [
-								", , , , , \n"+
-								" , , , , ,\n"+
-								", , , , , \n"+
-								" , , , , ,\n"+
-								", , , , , \n",
-								
-								", . , , . \n"+
-								" , . , , ,\n"+
-								", , , . , \n"+
-								" , . , , ,\n"+
-								", , , . , \n"
-							], frameRate: 1},
-						]
-					}
-				},
-				empty: {
-					name:"empty",
-					sprite:{
-						states:[
-							{frames: [
-								"          \n"+
-								"          \n"+
-								"          \n"+
-								"          \n"+
-								"          \n"
-							], frameRate: 1},
-						]
-					}
-				},
-				wall: {
-					name:"wall",
-					sprite:{
-						states:[
-							{frames: [
-								" /``````\\ \n"+
-								"|\\______/|\n"+
-								"|        |\n"+
-								"|        |\n"+
-								" \\______/ \n"
-							], frameRate: 1},
-						],
-					},
-					properties: {
-						solid:true,
-						description: "It's a wall.",
-					},
-				},
-				potion: {
-					name:"potion",
-					sprite: itemSprite,
-					properties: {
-						solid:true,
-						description: "It's a POTION.",
-						collectible: true,
-						use: function(actor){
-							actor.world.hud.addMessage(actor.name + " used a Potion");
-						},
-						singleUse: true,
-					},
-				},
-				key: {
-					name:"key",
-					sprite: itemSprite,
-					properties: {
-						solid:true,
-						description: "It's a key.",
-						collectible: true,
-						use: function(actor){
-							var room = actor.room;
-							var nextOb = actor.nextObject()
-							if(nextOb.name === 'lock'){
-								actor.world.hud.addMessage(actor.name + " opened the lock");
-								setTimeout(function(){
-									actor.room.removeGameObject(nextOb, nextOb.x, nextOb.y);
-									play('unlock');
-								}, 1000);
-							}else{
-								actor.world.hud.addMessage("nothing happened...");
-							}
-						},
-						singleUse: true,
-					},
-				},
-				lock: {
-					name:"lock",
-					sprite:{
-						states:[
-							{frames: [
-								" /``````\\ \n"+
-								"|\\------/|\n"+
-								"|  (  )  |\n"+
-								"|  /__\\  |\n"+
-								" \\______/ \n",
-							], frameRate: 1.5},
-						],
-					},
-					properties: {
-						solid:true,
-						inspect: function(actor){
-							var hud = actor.world.hud;
-							var keyOb_i = -1;
-							var keyObj = null;
-							for(var item_i=0;item_i< actor.bag.items.length;item_i++){
-								if(actor.bag.items[item_i].name === "key"){
-									keyOb_i = item_i;
-									keyObj = actor.bag.items[item_i];
-								}
-							}
-							hud.addMessage("It's a lock");
-							if(keyOb_i >= 0){	
-								hud.prompt("Do you want to unlock it with your key?", function(resp){
-									switch(resp){
-										case "YES":
-											keyObj.use(actor);
-											
-											// remove single use items
-											if(keyObj.singleUse === true)
-												actor.bag.items.splice(keyOb_i, 1);
-											break;
-										case "NO":
-											hud.addMessage("Ok, then");
-											break;
-									}
-								});
-							}
-								return "";
-						}
-					},
-				},
-				water: {
-					name:"water",
-					sprite:{
-						states:[
-							{frames: [
-								"      ;   \n"+
-								"       `.,\n"+
-								"`;,       \n"+
-								"  ;,      \n"+
-								"   `-..   \n",
-								
-								"   ;      \n"+
-								"    `.,   \n"+
-								"       `;,\n"+
-								",        ;\n"+
-								"`-..      \n",
-								
-								";         \n"+
-								" `.,      \n"+
-								"    `;,   \n"+
-								"      ;,  \n"+
-								".      `-.\n",
-							], frameRate: 1.5},
-						],
-					},
-					properties: {
-						solid:true,
-						description: "It's water.",
-					},
-				},
-				ledgeR: {
-					name:"ledgeR",
-					sprite:{
-						states:[
-							{frames: [
-								"         ;\n"+
-								"        .;\n"+
-								"         ;\n"+
-								"        .;\n"+
-								"        -;\n"
-							], frameRate: 1.5},
-						],
-					},
-					properties: {},
-				},
-				ledgeL: {
-					name:"ledgeL",
-					sprite:{
-						states:[
-							{frames: [
-								";         \n"+
-								";.        \n"+
-								";         \n"+
-								";.        \n"+
-								";-        \n"
-							], frameRate: 1.5},
-						],
-					},
-					properties: {},
-				},
-				ledgeU: {
-					name:"ledgeU",
-					sprite:{
-						states:[
-							{frames: [
-								"-,---.--,-\n"+
-								"          \n"+
-								"          \n"+
-								"          \n"+
-								"          \n"
-							], frameRate: 1.5},
-						],
-					},
-					properties: {},
-				},
-				ledgeD: {
-					name:"ledgeD",
-					sprite:{
-						states:[
-							{frames: [
-								"          \n"+
-								"          \n"+
-								"          \n"+
-								"          \n"+
-								"_;__;___;_\n"
-							], frameRate: 1.5},
-						],
-					},
-					properties: {},
-				},
-				ledgeRD: {
-					name:"ledgeRD",
-					sprite:{
-						states:[
-							{frames: [
-								"         ;\n"+
-								"        .;\n"+
-								"         ;\n"+
-								"        .;\n"+
-								"_;__;___;;\n"
-							], frameRate: 1.5},
-						],
-					},
-					properties: {},
-				},
-				ledgeRU: {
-					name:"ledgeRU",
-					sprite:{
-						states:[
-							{frames: [
-								"-,---.---;\n"+
-								"         ;\n"+
-								"         ;\n"+
-								"        .;\n"+
-								"        -;\n"
-							], frameRate: 1.5},
-						],
-					},
-					properties: {},
-				},
-				ledgeLU: {
-					name:"ledgeLU",
-					sprite:{
-						states:[
-							{frames: [
-								";----.---;\n"+
-								";.        \n"+
-								";         \n"+
-								";.        \n"+
-								";-        \n"
-							], frameRate: 1.5},
-						],
-					},
-					properties: {},
-				},
-				ledgeLD: {
-					name:"ledgeLD",
-					sprite:{
-						states:[
-							{frames: [
-								";         \n"+
-								";.        \n"+
-								";         \n"+
-								";.        \n"+
-								";;__;___;_\n"
-							], frameRate: 1.5},
-						],
-					},
-					properties: {},
-				},
-				spinner: {
-					name:"spinner",
-					sprite:{
-						states:[
-							{frames: [
-								"     ,    \n"+
-								"     ;    \n"+
-								"  ,;` `;, \n"+
-								"    _|_   \n"+
-								"   |___|  \n",
-								
-								"       ,  \n"+
-								"      ,'  \n"+
-								"  ``` ;,  \n"+
-								"    _|_ ` \n"+
-								"   |___|  \n",
-								
-								"          \n"+
-								"  `-  .-` \n"+
-								"    `;`   \n"+
-								"    _;_   \n"+
-								"   |___|  \n",
-								
-								"   ,      \n"+
-								"   ',     \n"+
-								"    ,;``` \n"+
-								"   `_|_   \n"+
-								"   |___|  \n"
-							], frameRate: 10},
-						],
-					},
-					properties: {
-						solid:true,
-						description: "It's Spinner.",
-					},
-				},
-				start: {
-					name:"start",
-					sprite:{
-						states:[
-							{frames: [
-								"Press any key.    \n",
-								"Press any key..   \n",
-								"Press any key...  \n",
-								"                  \n",
-							], frameRate: 2},
-						]
-					}
-				},
-				star: {
-					name:"star",
-					sprite:{
-						states:[
-							{frames: [
-								"          \n"+
-								"          \n"+
-								"          \n"+
-								"          \n"+
-								"          \n",
-								"          \n"+
-								"          \n"+
-								"     *    \n"+
-								"          \n"+
-								"          \n",
-								"          \n"+
-								"     |    \n"+
-								"   --*--  \n"+
-								"     |    \n"+
-								"          \n",
-								"     |    \n"+
-								"    \\|/   \n"+
-								" ----*----\n"+
-								"    /|\\   \n"+
-								"     |    \n",
-							], frameRate: 4},
-						]
-					}
-				},
-				title: {
-					name:"title",
-					sprite:{
-						states:[
-							{frames: [
-								"      ____   _____     ___   _   _      ____     ____       ___    \n" +
-								"     /    | /  ___|  /  __| | | | |    |  _  \\  |  _  \\   /  __|   \n" +
-								"    /  _  | | (_    |  /    | | | |    | | |  | | | |  | |  /      \n" +
-								"   /  /_| |  \\_ `,  | |     | | | |    | |/  /  | |_|  | | |  ____ \n" +
-								"  /   ___ |  __)  \\ |  \\__  | | | |    |  _ \\   | ____/  | | |_  _|\n" +
-								" /   /  | | |     | |     | | | | |    | | \\ \\  | |      |  \\__||  \n" +
-								"/___/   |_| |____/   \\____| |_| |_|    |_|  \\_\\ |_|       \\_____|  "
-							], frameRate: 1},
-						]
-					}
-				},
+var gameObjects = {
+	grass: {
+		name:"grass",
+		sprite: "grass"
+	},
+	empty: {
+		name:"empty",
+		sprite: "empty"
+	},
+	wall: {
+		name:"wall",
+		sprite: "wall",
+		properties: {
+			solid:true,
+			description: "It's a wall.",
+		},
+	},
+	potion: {
+		name:"potion",
+		sprite: "item",
+		properties: {
+			solid:true,
+			description: "It's a POTION.",
+			collectible: true,
+			use: function(actor){
+				actor.world.hud.addMessage(actor.name + " used a Potion");
+				return true;
 			},
-			actors: {
-				player: {
-					name:"player",
-					sprite:{
-						states:[
-							{
-								frames: [
-									"   ___    \n  /mmm\\   \n  \\@,@/   \n   Omm'   \n   ` n    \n",
-									"   ___    \n  /mmm\\   \n  \\@,@/   \n q mmm p  \n   n n    \n",
-									"   ___   \n  /mmm\\  \n  \\-.-/  \n  'mmO   \n   n `   \n",
-									"   ___    \n  /mmm\\   \n  \\@,@/   \n q mmm p  \n   n n    \n"
-								],
-								frameRate: 8
-							},
-							{
-								frames: [
-									"   ___    \n _/mmm\\   \n |6\\\\)/   \n  `mOn    \n  \\   b   \n",
-									"   ___    \n _/mmm\\   \n |6\\\\)/   \n  `mOn    \n   dd     \n",
-									"   ___   \n _/mmm\\  \n |-\\\\)/  \n  `mOn   \n  \\   b  \n",
-									"   ___    \n _/mmm\\   \n |6\\\\)/   \n  `mOn    \n   dd     \n"
-								],
-								frameRate: 8
-							},
-							{
-								frames: [
-									"   ___    \n  /mmm\\_  \n  \\(//6|  \n   nOm`   \n   d   /  \n",
-									"   ___    \n  /mmm\\_  \n  \\(//6|  \n   nOm`   \n    bb    \n",
-									"   ___   \n  /mmm\\_ \n  \\(//-| \n   nOm`  \n   d   / \n",
-									"   ___    \n  /mmm\\_  \n  \\(//6|  \n   nOm`   \n    bb    \n"
-								],
-								frameRate: 8
-							},
-							{
-								frames: [
-									"   ___    \n  /-_-\\   \n  \\mmm/   \n  dmOm    \n   ` ,    \n",
-									"   ___    \n  /-_-\\   \n  \\mmm/   \n   mOm    \n   , ,    \n",
-									"   ___   \n  /-_-\\  \n  \\mmm/  \n   mOmb  \n   , `   \n",
-									"   ___    \n  /-_-\\   \n  \\mmm/   \n   mOm    \n   , ,    \n"
-								], 
-								frameRate: 8
-							},
-						],
-						callbackFunctions: {},
-						properties: {},
-					}
+			singleUse: true,
+		},
+	},
+	key: {
+		name:"key",
+		sprite:  "item",
+		properties: {
+			solid:true,
+			description: "It's a key.",
+			collectible: true,
+			use: function(actor){
+				var room = actor.room;
+				var nextOb = actor.nextObject();
+				if(nextOb && nextOb.name === 'lock'){
+					actor.world.hud.addMessage(actor.name + " opened the lock");
+					setTimeout(function(){
+						actor.room.removeGameObject(nextOb, nextOb.x, nextOb.y);
+						play('unlock');
+					}, 1000);
+					return true;
+				}else{
+					actor.world.hud.addMessage("nothing happened...");
+					return false;
 				}
 			},
+			singleUse: true,
+		},
+	},
+	lock: {
+		name:"lock",
+		sprite: "lock",
+		properties: {
+			solid:true,
+			inspect: function(actor){
+				var hud = actor.world.hud;
+				var keyOb_i = -1;
+				var keyObj = null;
+				for(var item_i=0;item_i< actor.bag.items.length;item_i++){
+					if(actor.bag.items[item_i].name === "key"){
+						keyOb_i = item_i;
+						keyObj = actor.bag.items[item_i];
+					}
+				}
+				hud.addMessage("It's a lock");
+				if(keyOb_i >= 0){	
+					hud.prompt("Do you want to unlock it with your key?", function(resp){
+						switch(resp){
+							case "YES":
+								keyObj.use(actor);
+								
+								// remove single use items
+								if(keyObj.singleUse === true)
+									actor.bag.items.splice(keyOb_i, 1);
+								break;
+							case "NO":
+								hud.addMessage("Ok, then");
+								break;
+						}
+					});
+				}
+					return "";
+			}
+		},
+	},
+	water: {
+		name:"water",
+		sprite: "water",
+		properties: {
+			solid:true,
+			description: "It's water.",
+		},
+	},
+	ledgeR: {
+		name:"ledgeR",
+		sprite: "ledgeR",
+		properties: {},
+	},
+	ledgeL: {
+		name:"ledgeL",
+		sprite: "ledgeL",
+		properties: {},
+	},
+	ledgeU: {
+		name:"ledgeU",
+		sprite: "ledgeU",
+		properties: {},
+	},
+	ledgeD: {
+		name:"ledgeD",
+		sprite: "ledgeD",
+		properties: {},
+	},
+	ledgeRD: {
+		name:"ledgeRD",
+		sprite: "ledgeRD",
+		properties: {},
+	},
+	ledgeRU: {
+		name:"ledgeRU",
+		sprite: "ledgeRU",
+		properties: {},
+	},
+	ledgeLU: {
+		name:"ledgeLU",
+		sprite: "ledgeLU",
+		properties: {},
+	},
+	ledgeLD: {
+		name:"ledgeLD",
+		sprite: "ledgeLD",
+		properties: {},
+	},
+	spinner: {
+		name:"spinner",
+		sprite: "spinner",
+		properties: {
+			solid:true,
+			description: "It's Spinner.",
+		},
+	},
+	start: {
+		name:"start",
+		sprite: "start",
+	},
+	star: {
+		name:"star",
+		sprite: "star",
+	},
+	title: {
+		name:"title",
+		sprite: "title",
+	},
+	player: {
+		name:"player",
+		sprite: "player",
+		properties: {
+			'autostart': false
 		}
 	}
 };
 
+// use jquery deepcopy to duplicate sprite and rotate frames
+gameObjects.star2 = jQuery.extend(true, {}, gameObjects.star);
+sprites[gameObjects.star2.sprite].states[0].frames.unshift(sprites[gameObjects.star2.sprite].states[0].frames.pop());
+gameObjects.star2.name = "star2";
+gameObjects.star3 = jQuery.extend(true, {}, gameObjects.star2);
+sprites[gameObjects.star3.sprite].states[0].frames.unshift(sprites[gameObjects.star3.sprite].states[0].frames.pop());
+gameObjects.star3.name = "star3";
 
 
 var BagMode = function(game){
@@ -537,10 +560,10 @@ BagMode.prototype.handleInput = function(key){
 			}else if(this.selectMode === 'item'){
 				if(this.selectedItem >= 0){
 					if(this.items[this.selectedItem].hasOwnProperty('use')){
-						this.items[this.selectedItem].use(this.actor);
+						var used = this.items[this.selectedItem].use(this.actor);
 						
 						// remove single use items
-						if(this.items[this.selectedItem].singleUse === true){
+						if(used && this.items[this.selectedItem].singleUse === true){
 							this.items.splice(this.selectedItem, 1);
 						}
 					}
@@ -580,80 +603,43 @@ BagMode.prototype.onExitMode = function(){
 
 
 
-var gameData = function(){
-	var gameObjects = sample_data.modes.world.gameObjects;
-	var actors = sample_data.modes.world.actors;
-
-	var wall = gameObjects.wall;
-	var potion = gameObjects.potion;
-	var water = gameObjects.water;
-	var ledgeR = gameObjects.ledgeR;
-	var ledgeD = gameObjects.ledgeD;
-	var ledgeU = gameObjects.ledgeU;
-	var ledgeL = gameObjects.ledgeL;
-	var ledgeRD = gameObjects.ledgeRD;
-	var ledgeRU = gameObjects.ledgeRU;
-	var ledgeLD = gameObjects.ledgeLD;
-	var ledgeLU = gameObjects.ledgeLU;
-	var spinner = gameObjects.spinner;
-	var empty = gameObjects.empty;
-	var grass = gameObjects.grass;
-	var player = actors.player;
-	
-	
-	var key = gameObjects.key;
-	var lock = gameObjects.lock;
-	
-	var title = gameObjects.title;
-	var start = gameObjects.start;
-	
-	// use jquery deepcopy to duplicate sprite and rotate frames
-	var star = gameObjects.star;
-	var star2 = jQuery.extend(true, {}, star);
-	star2.sprite.states[0].frames.unshift(star2.sprite.states[0].frames.pop());
-	star2.name = "star2";
-	var star3 = jQuery.extend(true, {}, star2);
-	star3.sprite.states[0].frames.unshift(star3.sprite.states[0].frames.pop());
-	star3.name = "star3";
-	
-	return {
+var gameData = {
 		modes: {
 			world: {
 				name:"ASCII RPG",
 				rooms: [
 					{
 						name:"Demo level",
-						//music: 'sounds/Route_Theme_1_by_ALF.wav',
 						tiles: [
-							[water, water, water, water, water, water, water, water, water, water, water, water, water, water, water, water],
-							[water, water, water, water, water, water, water, water, water, water, water, water, water, water, water, water],
-							[water, water, water, water, water, water, water, water, water, water, water, water, water, water, water, water],
-							[water, water, water, water, water, wall,   wall,    wall, wall, wall, water, water, water, water, water, water],
-							[water, water, water, water, ledgeLU,ledgeU,ledgeU, wall, water, water, water,  water, water, wall, water, water],
-							[water, water, water, water, ledgeL, empty, empty, ledgeR, water, water,  water, water, water, wall, water, water],
-							[water, water, water, water, ledgeL, empty, potion, ledgeR, water, ledgeLU,ledgeU, ledgeRU, water, wall, water, water],
-							[water, water, water, water, ledgeL, empty, grass, ledgeR, water, ledgeL, spinner, ledgeRD, water, wall, water, water],
-							[water, water, water, water, wall, empty, grass, empty, ledgeU, grass, ledgeR, water, water, wall, water, water],
-							[water, water, water, water, wall, empty, grass, grass, ledgeD,  empty,  key, ledgeRU, water, wall, water, water],
-							[water, water, water, water, wall, empty, grass, ledgeR, water, ledgeLD,ledgeD, ledgeRD, water, wall, water, water],
-							[water, water, water, water, wall, empty, grass, ledgeR, water, water, water, water, water, wall, water, water],
-							[water, water, water, water, wall, empty, grass, ledgeR, water, water, water, water, water, wall, water, water],
-							[water, water, water, water, wall, wall, wall, lock, wall, wall, wall, water, water, wall, water, water],
-							[water, water, water, water, wall, empty, grass, grass, empty, empty, ledgeR, water, water, wall, water, water],
-							[water, water, water, water, wall, spinner, grass, grass, empty, empty, ledgeR, water, water, wall, water, water],
-							[water, water, water, water, wall, empty, potion, grass, grass, spinner, ledgeR, water, water, wall, water, water],
-							[water, water, water, water, wall, empty, grass, grass, grass, grass, ledgeR, water, water, wall, water, water],
-							[water, water, water, water, wall, empty, spinner, grass, grass, grass, ledgeRD, water, water, wall, water, water],
-							[water, water, water, water, wall, ledgeD, ledgeD, ledgeD, ledgeD, ledgeRD, water, water, water, wall, water, water],
-							[water, water, water, water, wall, water, water, water, water, water, water, water, water, wall, water, water],
-							[water, water, water, water, water, water, water, water, water, water, water, water, water, water, water, water],
-							[water, water, water, water, water, water, water, water, water, water, water, water, water, water, water, water],
-							[water, water, water, water, water, water, water, water, water, water, water, water, water, water, water, water],
-							[water, water, water, water, water, water, water, water, water, water, water, water, water, water, water, water],
+							["water","water","water","water","water","water","water","water","water","water","water","water","water","water","water","water"],
+							["water","water","water","water","water","water","water","water","water","water","water","water","water","water","water","water"],
+							["water","water","water","water","water","water","water","water","water","water","water","water","water","water","water","water"],
+							["water","water","water","water","water","wall","wall","wall","wall","wall","water","water","water","water","water","water"],
+							["water","water","water","water","ledgeLU","ledgeU","ledgeU","wall","water","water","water","water","water","wall","water","water"],
+							["water","water","water","water","ledgeL","empty","empty","ledgeR","water","water","water","water","water","wall","water","water"],
+							["water","water","water","water","ledgeL","empty","potion","ledgeR","water","ledgeLU","ledgeU","ledgeRU","water","wall","water","water"],
+							["water","water","water","water","ledgeL","empty","grass","ledgeR","water","ledgeL","spinner","ledgeRD","water","wall","water","water"],
+							["water","water","water","water","wall","empty","grass","empty","ledgeU","grass","ledgeR","water","water","wall","water","water"],
+							["water","water","water","water","wall","empty","grass","grass","ledgeD","empty","key","ledgeRU","water","wall","water","water"],
+							["water","water","water","water","wall","empty","grass","ledgeR","water","ledgeLD","ledgeD","ledgeRD","water","wall","water","water"],
+							["water","water","water","water","wall","empty","grass","ledgeR","water","water","water","water","water","wall","water","water"],
+							["water","water","water","water","wall","empty","grass","ledgeR","water","water","water","water","water","wall","water","water"],
+							["water","water","water","water","wall","wall","wall","lock","wall","wall","wall","water","water","wall","water","water"],
+							["water","water","water","water","wall","empty","grass","grass","empty","empty","ledgeR","water","water","wall","water","water"],
+							["water","water","water","water","wall","spinner","grass","grass","empty","empty","ledgeR","water","water","wall","water","water"],
+							["water","water","water","water","wall","empty","potion","grass","grass","spinner","ledgeR","water","water","wall","water","water"],
+							["water","water","water","water","wall","empty","grass","grass","grass","grass","ledgeR","water","water","wall","water","water"],
+							["water","water","water","water","wall","empty","spinner","grass","grass","grass","ledgeRD","water","water","wall","water","water"],
+							["water","water","water","water","wall","ledgeD","ledgeD","ledgeD","ledgeD","ledgeRD","water","water","water","wall","water","water"],
+							["water","water","water","water","wall","water","water","water","water","water","water","water","water","wall","water","water"],
+							["water","water","water","water","water","water","water","water","water","water","water","water","water","water","water","water"],
+							["water","water","water","water","water","water","water","water","water","water","water","water","water","water","water","water"],
+							["water","water","water","water","water","water","water","water","water","water","water","water","water","water","water","water"],
+							["water","water","water","water","water","water","water","water","water","water","water","water","water","water","water","water"]
 						],
-						players: [
+						actors: [
 							{
-								player: player,
+								gameObject: "player",
 								location: [5, 5],
 							}
 						]
@@ -664,31 +650,31 @@ var gameData = function(){
 				//music: 'sounds/Intro_by_ALF.wav',
 				objects:[
 					{
-						gameObject: start,
+						gameObject: "start",
 						location: [42,30],
 					},
 					{
-						gameObject: star,
+						gameObject: "star",
 						location: [2,3],
 					},
 					{
-						gameObject: star2,
+						gameObject: "star2",
 						location: [80,10],
 					},
 					{
-						gameObject: star3,
+						gameObject: "star3",
 						location: [16,25],
 					},
 					{
-						gameObject: star2,
+						gameObject: "star2",
 						location: [65,27],
 					},
 					{
-						gameObject: star3,
+						gameObject: "star3",
 						location: [2,39],
 					},
 					{
-						gameObject: title,
+						gameObject: "title",
 						location: [18,12],
 					},
 				]
@@ -696,4 +682,3 @@ var gameData = function(){
 			'bag': BagMode
 		}
 	};
-}();
