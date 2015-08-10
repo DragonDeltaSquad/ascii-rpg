@@ -37,15 +37,18 @@
 </style>
 <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script src="js/asciiRPG.js"></script>
+<script src="js/maze.js"></script>
 <script src="js/sample_world.js"></script>
 <script>
 	var game;
 	var playerString;
-	
+	var maze;
 	$(function(){
 	
 		game = asciiRPG.load(document.getElementById("main"), gameData);
+		
 		game.run();
+		
 	});
 </script>
 </head>
