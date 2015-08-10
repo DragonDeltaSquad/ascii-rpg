@@ -616,6 +616,9 @@ var gameData = function(){
 	star3.sprite.states[0].frames.unshift(star3.sprite.states[0].frames.pop());
 	star3.name = "star3";
 	
+	
+	maze = Maze.generate();
+	
 	return {
 		modes: {
 			world: {
@@ -624,7 +627,9 @@ var gameData = function(){
 					{
 						name:"Demo level",
 						//music: 'sounds/Route_Theme_1_by_ALF.wav',
-						tiles: [
+						tiles: maze.toArray({true: wall, false: grass}),
+						/*
+						[
 							[water, water, water, water, water, water, water, water, water, water, water, water, water, water, water, water],
 							[water, water, water, water, water, water, water, water, water, water, water, water, water, water, water, water],
 							[water, water, water, water, water, water, water, water, water, water, water, water, water, water, water, water],
@@ -650,7 +655,7 @@ var gameData = function(){
 							[water, water, water, water, water, water, water, water, water, water, water, water, water, water, water, water],
 							[water, water, water, water, water, water, water, water, water, water, water, water, water, water, water, water],
 							[water, water, water, water, water, water, water, water, water, water, water, water, water, water, water, water],
-						],
+						],*/
 						players: [
 							{
 								player: player,
