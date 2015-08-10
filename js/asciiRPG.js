@@ -725,12 +725,16 @@ World.prototype.draw = function(compositor){
 
 	compositor.clearFrame();
 	for(var i=0; i < this.room.gameObjects.length;i++){
-		compositor.add(
-			this.room.gameObjects[i].sprite.getImage(),
-			this.room.gameObjects[i].sprite.getMap(),
-			this.room.gameObjects[i].x - viewport_x,
-			this.room.gameObjects[i].y - viewport_y
-		);
+		if(this.room.gameObjects[i].x - viewport_x >= 0 - TILE_WIDTH &&
+		this.room.gameObjects[i].x - viewport_x < SCREEN_WIDTH &&
+		this.room.gameObjects[i].y - viewport_y >=0 - TILE_HEIGHT &&
+		this.room.gameObjects[i].y - viewport_y < SCREEN_HEIGHT)
+			compositor.add(
+				this.room.gameObjects[i].sprite.getImage(),
+				this.room.gameObjects[i].sprite.getMap(),
+				this.room.gameObjects[i].x - viewport_x,
+				this.room.gameObjects[i].y - viewport_y
+			);
 	}
 	this.hud.draw(compositor);
 };
