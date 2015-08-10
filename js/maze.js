@@ -16,6 +16,7 @@ Maze = function(width, height) {
   this.width = width;
   this.height = height;
   this.grid = this.init_array(true);
+	this.endpoints = [];
 };
 
 
@@ -260,7 +261,6 @@ Maze.prototype.build_maze = function(x, y, depth) {
         rev_move = ((move + 2) % 4);
         no_inf += 1;
       }
-
     }
 
     if ((no_inf == 10)) {
@@ -326,25 +326,29 @@ Maze.prototype.fill = function(x, y) {
   visited = this.init_array(false);
 	var maze = this;
   fill_sub = function(x, y) {
+		var num_recursions = 0;
     if (((!maze.grid[x][y]) && (visited[x][y] === false))) {
+			num_recursions += 1;
       visited[x][y] = true;
       if (((x > 0) && (!maze.grid[(x - 1)][y]))) {
-        fill_sub((x - 1), y);
+        num_recursions += fill_sub((x - 1), y);
       }
 
       if (((x < (maze.width - 1)) && (!maze.grid[(x + 1)][y]))) {
-        fill_sub((x + 1), y);
+        num_recursions += fill_sub((x + 1), y);
       }
 
       if (((y > 0) && (!maze.grid[x][(y - 1)]))) {
-        fill_sub(x, (y - 1));
+        num_recursions += fill_sub(x, (y - 1));
       }
 
       if (((y < (maze.height - 1)) && (!maze.grid[x][(y + 1)]))) {
-        fill_sub(x, (y + 1));
+        num_recursions += fill_sub(x, (y + 1));
       }
-
     }
+		if(num_recursions === 1)
+			maze.endpoints.push([x, y]);
+		return num_recursions;
 
   };
 
