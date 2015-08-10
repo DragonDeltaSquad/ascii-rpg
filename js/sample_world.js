@@ -538,7 +538,7 @@ BagMode.prototype.handleInput = function(key){
 				this.items = this.bag[this.categories[this.selectedCategory]];
 			}else if(this.selectMode === 'item'){
 				if(numItems > 0)
-					this.selectedItem = (this.selectedItem - 1 + numItems) % numItems;
+					this.selectedItem = (this.selectedItem + 1 + numItems) % numItems;
 			}
 			play('selectChange');
 			break;
@@ -603,6 +603,18 @@ BagMode.prototype.onExitMode = function(){
 
 
 
+var maze = Maze.generate();
+var mazeTiles = maze.toArray({true: "wall", false: "grass"});
+for(var endpoint in maze.endpoints){
+	var rand = Math.random();
+	if(rand < .30)
+		mazeTiles[maze.endpoints[endpoint][0]][maze.endpoints[endpoint][1]] = "potion";	
+	else if(rand < .6)
+		mazeTiles[maze.endpoints[endpoint][0]][maze.endpoints[endpoint][1]] = "spinner";	
+	else
+		mazeTiles[maze.endpoints[endpoint][0]][maze.endpoints[endpoint][1]] = "empty";
+}
+
 var gameData = {
 		modes: {
 			world: {
@@ -641,6 +653,16 @@ var gameData = {
 							{
 								gameObject: "player",
 								location: [5, 5],
+							}
+						]
+					},
+					{
+						name:"Maze Room",
+						tiles: mazeTiles,
+						actors: [
+							{
+								gameObject: "player",
+								location: [0, 20],
 							}
 						]
 					},
