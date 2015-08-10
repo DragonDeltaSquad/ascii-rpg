@@ -618,6 +618,9 @@ var gameData = function(){
 	
 	
 	maze = Maze.generate();
+	var tiles = maze.toArray({true: wall, false: grass});
+	for(var endpoint in maze.endpoints)
+		tiles[maze.endpoints[endpoint][0]][maze.endpoints[endpoint][1]] = potion;
 	
 	return {
 		modes: {
@@ -627,7 +630,7 @@ var gameData = function(){
 					{
 						name:"Demo level",
 						//music: 'sounds/Route_Theme_1_by_ALF.wav',
-						tiles: maze.toArray({true: wall, false: grass}),
+						tiles: tiles,
 						/*
 						[
 							[water, water, water, water, water, water, water, water, water, water, water, water, water, water, water, water],
