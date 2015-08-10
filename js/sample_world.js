@@ -1,11 +1,11 @@
 var itemSprite = {
 	states:[
 		{frames: [
-			"  ,-`'`-,   \n"+
-			" / |---| \\ \n"+
-			" | | * | | \n"+
-			" \\ |---| / \n"+
-			"  '-.,.-'  \n"
+			"  ,-`'`-, \n"+
+			" / |---| \\\n"+
+			" | | * | |\n"+
+			" \\ |---| /\n"+
+			"  '-.,.-' \n"
 		], frameRate: 1},
 	],
 };
@@ -515,7 +515,7 @@ BagMode.prototype.handleInput = function(key){
 				this.items = this.bag[this.categories[this.selectedCategory]];
 			}else if(this.selectMode === 'item'){
 				if(numItems > 0)
-					this.selectedItem = (this.selectedItem - 1 + numItems) % numItems;
+					this.selectedItem = (this.selectedItem + 1 + numItems) % numItems;
 			}
 			play('selectChange');
 			break;
@@ -619,8 +619,16 @@ var gameData = function(){
 	
 	maze = Maze.generate();
 	var tiles = maze.toArray({true: wall, false: grass});
-	for(var endpoint in maze.endpoints)
-		tiles[maze.endpoints[endpoint][0]][maze.endpoints[endpoint][1]] = potion;
+	for(var endpoint in maze.endpoints){
+		var rand = Math.random();
+		if(rand < .30)
+			tiles[maze.endpoints[endpoint][0]][maze.endpoints[endpoint][1]] = potion;	
+		else if(rand < .6)
+			tiles[maze.endpoints[endpoint][0]][maze.endpoints[endpoint][1]] = spinner;	
+		else
+			tiles[maze.endpoints[endpoint][0]][maze.endpoints[endpoint][1]] = water;	
+		
+	}
 	
 	return {
 		modes: {
