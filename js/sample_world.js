@@ -603,82 +603,104 @@ BagMode.prototype.onExitMode = function(){
 
 
 
+var maze = Maze.generate();
+var mazeTiles = maze.toArray({true: "wall", false: "grass"});
+for(var endpoint in maze.endpoints){
+	var rand = Math.random();
+	if(rand < .30)
+		mazeTiles[maze.endpoints[endpoint][0]][maze.endpoints[endpoint][1]] = "potion";	
+	else if(rand < .6)
+		mazeTiles[maze.endpoints[endpoint][0]][maze.endpoints[endpoint][1]] = "spinner";	
+	else
+		mazeTiles[maze.endpoints[endpoint][0]][maze.endpoints[endpoint][1]] = "empty";
+}
+
 var gameData = {
-		modes: {
-			world: {
-				name:"ASCII RPG",
-				rooms: [
-					{
-						name:"Demo level",
-						tiles: [
-							["water","water","water","water","water","water","water","water","water","water","water","water","water","water","water","water"],
-							["water","water","water","water","water","water","water","water","water","water","water","water","water","water","water","water"],
-							["water","water","water","water","water","water","water","water","water","water","water","water","water","water","water","water"],
-							["water","water","water","water","water","wall","wall","wall","wall","wall","water","water","water","water","water","water"],
-							["water","water","water","water","ledgeLU","ledgeU","ledgeU","wall","water","water","water","water","water","wall","water","water"],
-							["water","water","water","water","ledgeL","empty","empty","ledgeR","water","water","water","water","water","wall","water","water"],
-							["water","water","water","water","ledgeL","empty","potion","ledgeR","water","ledgeLU","ledgeU","ledgeRU","water","wall","water","water"],
-							["water","water","water","water","ledgeL","empty","grass","ledgeR","water","ledgeL","spinner","ledgeRD","water","wall","water","water"],
-							["water","water","water","water","wall","empty","grass","empty","ledgeU","grass","ledgeR","water","water","wall","water","water"],
-							["water","water","water","water","wall","empty","grass","grass","ledgeD","empty","key","ledgeRU","water","wall","water","water"],
-							["water","water","water","water","wall","empty","grass","ledgeR","water","ledgeLD","ledgeD","ledgeRD","water","wall","water","water"],
-							["water","water","water","water","wall","empty","grass","ledgeR","water","water","water","water","water","wall","water","water"],
-							["water","water","water","water","wall","empty","grass","ledgeR","water","water","water","water","water","wall","water","water"],
-							["water","water","water","water","wall","wall","wall","lock","wall","wall","wall","water","water","wall","water","water"],
-							["water","water","water","water","wall","empty","grass","grass","empty","empty","ledgeR","water","water","wall","water","water"],
-							["water","water","water","water","wall","spinner","grass","grass","empty","empty","ledgeR","water","water","wall","water","water"],
-							["water","water","water","water","wall","empty","potion","grass","grass","spinner","ledgeR","water","water","wall","water","water"],
-							["water","water","water","water","wall","empty","grass","grass","grass","grass","ledgeR","water","water","wall","water","water"],
-							["water","water","water","water","wall","empty","spinner","grass","grass","grass","ledgeRD","water","water","wall","water","water"],
-							["water","water","water","water","wall","ledgeD","ledgeD","ledgeD","ledgeD","ledgeRD","water","water","water","wall","water","water"],
-							["water","water","water","water","wall","water","water","water","water","water","water","water","water","wall","water","water"],
-							["water","water","water","water","water","water","water","water","water","water","water","water","water","water","water","water"],
-							["water","water","water","water","water","water","water","water","water","water","water","water","water","water","water","water"],
-							["water","water","water","water","water","water","water","water","water","water","water","water","water","water","water","water"],
-							["water","water","water","water","water","water","water","water","water","water","water","water","water","water","water","water"]
-						],
-						actors: [
-							{
-								gameObject: "player",
-								location: [5, 5],
-							}
-						]
-					},
-				]
-			},
-			title: {
-				//music: 'sounds/Intro_by_ALF.wav',
-				objects:[
-					{
-						gameObject: "start",
-						location: [42,30],
-					},
-					{
-						gameObject: "star",
-						location: [2,3],
-					},
-					{
-						gameObject: "star2",
-						location: [80,10],
-					},
-					{
-						gameObject: "star3",
-						location: [16,25],
-					},
-					{
-						gameObject: "star2",
-						location: [65,27],
-					},
-					{
-						gameObject: "star3",
-						location: [2,39],
-					},
-					{
-						gameObject: "title",
-						location: [18,12],
-					},
-				]
-			},
-			'bag': BagMode
-		}
-	};
+	modes: {
+		world: {
+			name:"ASCII RPG",
+			rooms: [
+				{
+					name:"Demo level",
+					tiles: [
+						["water","water","water","water","water","water","water","water","water","water","water","water","water","water","water","water"],
+						["water","water","water","water","water","water","water","water","water","water","water","water","water","water","water","water"],
+						["water","water","water","water","water","water","water","water","water","water","water","water","water","water","water","water"],
+						["water","water","water","water","water","wall","wall","wall","wall","wall","water","water","water","water","water","water"],
+						["water","water","water","water","ledgeLU","ledgeU","ledgeU","wall","water","water","water","water","water","wall","water","water"],
+						["water","water","water","water","ledgeL","empty","empty","ledgeR","water","water","water","water","water","wall","water","water"],
+						["water","water","water","water","ledgeL","empty","potion","ledgeR","water","ledgeLU","ledgeU","ledgeRU","water","wall","water","water"],
+						["water","water","water","water","ledgeL","empty","grass","ledgeR","water","ledgeL","spinner","ledgeRD","water","wall","water","water"],
+						["water","water","water","water","wall","empty","grass","empty","ledgeU","grass","ledgeR","water","water","wall","water","water"],
+						["water","water","water","water","wall","empty","grass","grass","ledgeD","empty","key","ledgeRU","water","wall","water","water"],
+						["water","water","water","water","wall","empty","grass","ledgeR","water","ledgeLD","ledgeD","ledgeRD","water","wall","water","water"],
+						["water","water","water","water","wall","empty","grass","ledgeR","water","water","water","water","water","wall","water","water"],
+						["water","water","water","water","wall","empty","grass","ledgeR","water","water","water","water","water","wall","water","water"],
+						["water","water","water","water","wall","wall","wall","lock","wall","wall","wall","water","water","wall","water","water"],
+						["water","water","water","water","wall","empty","grass","grass","empty","empty","ledgeR","water","water","wall","water","water"],
+						["water","water","water","water","wall","spinner","grass","grass","empty","empty","ledgeR","water","water","wall","water","water"],
+						["water","water","water","water","wall","empty","potion","grass","grass","spinner","ledgeR","water","water","wall","water","water"],
+						["water","water","water","water","wall","empty","grass","grass","grass","grass","ledgeR","water","water","wall","water","water"],
+						["water","water","water","water","wall","empty","spinner","grass","grass","grass","ledgeRD","water","water","wall","water","water"],
+						["water","water","water","water","wall","ledgeD","ledgeD","ledgeD","ledgeD","ledgeRD","water","water","water","wall","water","water"],
+						["water","water","water","water","wall","water","water","water","water","water","water","water","water","wall","water","water"],
+						["water","water","water","water","water","water","water","water","water","water","water","water","water","water","water","water"],
+						["water","water","water","water","water","water","water","water","water","water","water","water","water","water","water","water"],
+						["water","water","water","water","water","water","water","water","water","water","water","water","water","water","water","water"],
+						["water","water","water","water","water","water","water","water","water","water","water","water","water","water","water","water"]
+					],
+					actors: [
+						{
+							gameObject: "player",
+							location: [5, 5],
+						}
+					]
+				},
+				{
+					name:"Maze Room",
+					tiles: mazeTiles,
+					actors: [
+						{
+							gameObject: "player",
+							location: [0, 20],
+						}
+					]
+				},
+			]
+		},
+		title: {
+			//music: 'sounds/Intro_by_ALF.wav',
+			objects:[
+				{
+					gameObject: "start",
+					location: [42,30],
+				},
+				{
+					gameObject: "star",
+					location: [2,3],
+				},
+				{
+					gameObject: "star2",
+					location: [80,10],
+				},
+				{
+					gameObject: "star3",
+					location: [16,25],
+				},
+				{
+					gameObject: "star2",
+					location: [65,27],
+				},
+				{
+					gameObject: "star3",
+					location: [2,39],
+				},
+				{
+					gameObject: "title",
+					location: [18,12],
+				},
+			]
+		},
+		'bag': BagMode
+	}
+};
