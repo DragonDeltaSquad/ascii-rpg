@@ -528,7 +528,7 @@ BagMode.prototype.handleInput = function(key){
 				this.items = this.bag[this.categories[this.selectedCategory]];
 			}else if(this.selectMode === 'item'){
 				if(numItems > 0)
-					this.selectedItem = (this.selectedItem - 1 + numItems) % numItems;
+					this.selectedItem = (this.selectedItem + 1 + numItems) % numItems;
 			}
 			play('selectChange');
 			break;
