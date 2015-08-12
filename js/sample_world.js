@@ -603,16 +603,16 @@ BagMode.prototype.onExitMode = function(){
 
 
 
-var maze = Maze.generate();
+var maze = Maze.generate(40, 5);
 var mazeTiles = maze.toArray({true: "wall", false: "grass"});
 for(var endpoint in maze.endpoints){
 	var rand = Math.random();
 	if(rand < .30)
-		mazeTiles[maze.endpoints[endpoint][0]][maze.endpoints[endpoint][1]] = "potion";	
+		mazeTiles[maze.endpoints[endpoint][1]][maze.endpoints[endpoint][0]] = "potion";	
 	else if(rand < .6)
-		mazeTiles[maze.endpoints[endpoint][0]][maze.endpoints[endpoint][1]] = "spinner";	
+		mazeTiles[maze.endpoints[endpoint][1]][maze.endpoints[endpoint][0]] = "spinner";	
 	else
-		mazeTiles[maze.endpoints[endpoint][0]][maze.endpoints[endpoint][1]] = "empty";
+		mazeTiles[maze.endpoints[endpoint][1]][maze.endpoints[endpoint][0]] = "empty";
 }
 
 var gameData = {
@@ -620,6 +620,16 @@ var gameData = {
 			world: {
 				name:"ASCII RPG",
 				rooms: [
+					{
+						name:"Maze Room",
+						tiles: mazeTiles,
+						actors: [
+							{
+								gameObject: "player",
+								location: [20, -1],
+							}
+						]
+					},
 					{
 						name:"Demo level",
 						tiles: [
@@ -653,16 +663,6 @@ var gameData = {
 							{
 								gameObject: "player",
 								location: [5, 5],
-							}
-						]
-					},
-					{
-						name:"Maze Room",
-						tiles: mazeTiles,
-						actors: [
-							{
-								gameObject: "player",
-								location: [0, 20],
 							}
 						]
 					},

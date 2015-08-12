@@ -22,7 +22,7 @@ Maze = function(width, height) {
 
 // static function for generating a maze object with a low ratio
 // of wall to not wall
-Maze.generate = function(){
+Maze.generate = function(width, height){
 	var min_ratio = 100;
 	var min_maze = null;
 	var ratios = [];
@@ -30,7 +30,7 @@ Maze.generate = function(){
 	var target_ratio = 0.55;
 	//console.log(("target: " + target_ratio));
 	while (((min_ratio > target_ratio) && (tries <= 100))) {
-		maze = new Maze();
+		maze = new Maze(width, height);
 		maze.queue_maze();
 		ratio = maze.ratio();
 		ratios.push(ratio);
@@ -418,13 +418,13 @@ Maze.prototype.toArray = function(map){
 		map = {};
 	
 	var out = [];
-	for (x = 0; x < this.width; x++) {
+	for (var row = 0; row < this.height; row++) {
 		out.push([]);
-		for (y = 0; y < this.height; y++) {
-			if(map.hasOwnProperty(this.grid[x][y]))
-				out[x][y] = map[this.grid[x][y]];
+		for (var col = 0; col < this.width; col++) {
+			if(map.hasOwnProperty(this.grid[col][row]))
+				out[row][col] = map[this.grid[col][row]];
 			else
-				out[x][y] = this.grid[x][y];
+				out[row][col] = this.grid[col][row];
 		}
 	}
 	return out;
