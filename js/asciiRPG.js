@@ -204,7 +204,7 @@ Compositor.prototype.addText = function(text, x, y){
 	});
 };
 
-Compositor.prototype.fadeOut = function(duration){
+Compositor.prototype.fadeOut = function(duration, callback){
 	var compositor = this;
 	var when_started = new Date();
 	if(duration === undefined)
@@ -212,8 +212,11 @@ Compositor.prototype.fadeOut = function(duration){
 	compositor.post_processor = function(frameArr){
 		var runningTime = (new Date()) - when_started;
 		var percentVisible = 1 - runningTime/duration;
-		if(percentVisible <= 0)
+		if(percentVisible <= 0){
 			compositor.post_processor = null;
+			if(callback instanceof Function)
+				callback();
+		}
 		for(var row=0;row<frameArr.length;row++){
 			for(var col=0;col<frameArr[row].length;col++){
 				if(Math.random() > percentVisible)
@@ -223,7 +226,7 @@ Compositor.prototype.fadeOut = function(duration){
 	};
 };
 
-Compositor.prototype.fadeIn = function(duration){
+Compositor.prototype.fadeIn = function(duration, callback){
 	var compositor = this;
 	var when_started = new Date();
 	if(duration === undefined)
@@ -231,8 +234,11 @@ Compositor.prototype.fadeIn = function(duration){
 	compositor.post_processor = function(frameArr){
 		var runningTime = (new Date()) - when_started;
 		var percentVisible = runningTime/duration;
-		if(percentVisible <= 0)
+		if(percentVisible >= 1){
 			compositor.post_processor = null;
+			if(callback instanceof Function)
+				callback();
+		}
 		for(var row=0;row<frameArr.length;row++){
 			for(var col=0;col<frameArr[row].length;col++){
 				if(Math.random() > percentVisible)
@@ -732,6 +738,7 @@ Game.prototype.switchMode = function(modeName, params){
 };
 
 var World = function(world_data, game){
+	this.game = game;
 	if(world_data === undefined){
 		world_data = {
 			name:"New World",
@@ -760,13 +767,12 @@ var World = function(world_data, game){
 	this.data = world_data;
 	this.player = new Actor(gameObjects[world_data.player]);
 	this.player.world = this;
-	this.setRoom(world_data.rooms[0].name);
+	this.setRoomNow(world_data.rooms[0].name);
 	if(this.room.hasOwnProperty('music'))
 		this.music = new AudioLoop(this.room.music);
 	else
 		this.music = undefined;
 	
-	this.game = game;
 	
 	this.hud = new HUD(this, game);
 };
@@ -791,16 +797,33 @@ World.prototype.draw = function(compositor){
 	this.hud.draw(compositor);
 };
 
-World.prototype.setRoom = function(roomName){
-	for(var i=0;i<this.data.rooms.length;i++){
-		if(this.data.rooms[i].name === roomName){
-			this.room = new Room(this.data.rooms[i]);
-			this.room.add(this.player);
-			this.player.enterRoom(this.room);
+// set the current room (Immediately -- see setRoom for transitions)
+World.prototype.setRoomNow = function(roomName){
+	var world = this;
+	for(var i=0;i<world.data.rooms.length;i++){
+		if(world.data.rooms[i].name === roomName){
+			world.room = new Room(world.data.rooms[i]);
+			world.room.add(world.player);
+			world.player.enterRoom(world.room);
 			return;
 		}
 	}
-	console.log("cant find " + roomName);
+};
+
+// Transition into a room
+World.prototype.setRoom = function(roomName){
+	var world = this;
+	disableInput = true; // disable all input for transition
+	world.game.compositor.fadeOut(500, function(){
+		for(var i=0;i<world.data.rooms.length;i++){
+			if(world.data.rooms[i].name === roomName){
+				world.setRoomNow(roomName);
+			}
+		}
+		world.game.compositor.fadeIn(500, function(){
+			disableInput = false;
+		});
+	});
 };
 
 World.prototype.handleInput = function(key){
@@ -1079,6 +1102,7 @@ TitleScreen.prototype.onExitMode = function(){
 }
 
 
+var disableInput = false;
 // if WASD is down, mash move every 100ms (so we have regular continued movement)
 var keyPressers = {};
 
@@ -1097,10 +1121,10 @@ $(document).keydown(function(event){
 				return;
 			}
             //send gameHandleInput movement related keycode
-			game.handleInput(event.keyCode);
+			if(!disableInput)game.handleInput(event.keyCode);
             
 			if(game.repeatPressMovementKeys)
-				keyPressers[event.keyCode] = setInterval(function(){game.handleInput(event.keyCode);}, 100);
+				keyPressers[event.keyCode] = setInterval(function(){if(!disableInput)game.handleInput(event.keyCode);}, 100);
 			else
 				keyPressers[event.keyCode] = true;
 			break;
@@ -1109,7 +1133,7 @@ $(document).keydown(function(event){
 				return;
 			}
             // give game handleInput anyway?
-			game.handleInput(event.keyCode);
+			if(!disableInput)game.handleInput(event.keyCode);
 			keyPressers[event.keyCode] = true;
 			break;
 	}
