@@ -366,11 +366,13 @@ var Room = function(room_data){
 		this.tiles.push([]);
 		for(var col_i=0;col_i < row.length; col_i++){
 			var go_data = row[col_i];
-			var go = new GameObject(gameObjects[go_data]);
-			go.y = row_i*TILE_HEIGHT;
-			go.x = col_i*TILE_WIDTH;
-			this.add(go);
-			this.tiles[row_i].push(go);
+			if(go_data !== undefined){
+				var go = new GameObject(gameObjects[go_data]);
+				go.y = row_i*TILE_HEIGHT;
+				go.x = col_i*TILE_WIDTH;
+				this.add(go);
+				this.tiles[row_i].push(go);
+			}
 		}
 	}
 	if(room_data.hasOwnProperty('music'))
