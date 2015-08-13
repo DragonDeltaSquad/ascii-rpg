@@ -141,6 +141,7 @@ var Compositor = function(canvasElement){
 	this.el = canvasElement;
 	this.clearFrame();
 	this.textOverlays = [];
+	this.post_processor = null;
 };
 
 Compositor.prototype.render = function(){
@@ -152,6 +153,9 @@ Compositor.prototype.render = function(){
 		ctx.font = "16.6px Courier New";
 		ctx.fillStyle = "black";
 		ctx.textAlign = "left";
+		
+		if(this.post_processor !== null)
+			this.post_processor(this.frameArr);
 		
 		var lines = [];
 		for (var i = 0; i < this.frameArr.length; ++i) {
@@ -166,6 +170,7 @@ Compositor.prototype.render = function(){
 			var textObj = this.textOverlays[t];
 			fillTextMultiLine(ctx, textObj.text.split('\n'), textObj.x*9.86, 13 + textObj.y*20.5 );
 		}
+		
 };
 
 Compositor.prototype.clearFrame = function(){
@@ -198,6 +203,45 @@ Compositor.prototype.addText = function(text, x, y){
 		'y': y,
 	});
 };
+
+Compositor.prototype.fadeOut = function(duration){
+	var compositor = this;
+	var when_started = new Date();
+	if(duration === undefined)
+		duration = 500;
+	compositor.post_processor = function(frameArr){
+		var runningTime = (new Date()) - when_started;
+		var percentVisible = 1 - runningTime/duration;
+		if(percentVisible <= 0)
+			compositor.post_processor = null;
+		for(var row=0;row<frameArr.length;row++){
+			for(var col=0;col<frameArr[row].length;col++){
+				if(Math.random() > percentVisible)
+					frameArr[row][col] = " ";
+			}
+		}
+	};
+};
+
+Compositor.prototype.fadeIn = function(duration){
+	var compositor = this;
+	var when_started = new Date();
+	if(duration === undefined)
+		duration = 500;
+	compositor.post_processor = function(frameArr){
+		var runningTime = (new Date()) - when_started;
+		var percentVisible = runningTime/duration;
+		if(percentVisible <= 0)
+			compositor.post_processor = null;
+		for(var row=0;row<frameArr.length;row++){
+			for(var col=0;col<frameArr[row].length;col++){
+				if(Math.random() > percentVisible)
+					frameArr[row][col] = " ";
+			}
+		}
+	};
+};
+
 
 var Sprite = function(){
 	this.image = "<   >";
