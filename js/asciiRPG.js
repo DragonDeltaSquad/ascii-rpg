@@ -1,4 +1,4 @@
-REVISION = "1"
+REVISION = "2"
 
 // http://stackoverflow.com/a/21574562/4187005
 function fillTextMultiLine(ctx, text, x, y) {
@@ -141,6 +141,7 @@ var Compositor = function(canvasElement){
 	this.el = canvasElement;
 	this.clearFrame();
 	this.textOverlays = [];
+	this.post_processor = null;
 };
 
 Compositor.prototype.render = function(){
@@ -152,6 +153,9 @@ Compositor.prototype.render = function(){
 		ctx.font = "16.6px Courier New";
 		ctx.fillStyle = "black";
 		ctx.textAlign = "left";
+		
+		if(this.post_processor !== null)
+			this.post_processor(this.frameArr);
 		
 		var lines = [];
 		for (var i = 0; i < this.frameArr.length; ++i) {
@@ -166,6 +170,7 @@ Compositor.prototype.render = function(){
 			var textObj = this.textOverlays[t];
 			fillTextMultiLine(ctx, textObj.text.split('\n'), textObj.x*9.86, 13 + textObj.y*20.5 );
 		}
+		
 };
 
 Compositor.prototype.clearFrame = function(){
@@ -199,6 +204,51 @@ Compositor.prototype.addText = function(text, x, y){
 	});
 };
 
+Compositor.prototype.fadeOut = function(duration, callback){
+	var compositor = this;
+	var when_started = new Date();
+	if(duration === undefined)
+		duration = 500;
+	compositor.post_processor = function(frameArr){
+		var runningTime = (new Date()) - when_started;
+		var percentVisible = 1 - runningTime/duration;
+		if(percentVisible <= 0){
+			compositor.post_processor = null;
+			if(callback instanceof Function)
+				callback();
+		}
+		for(var row=0;row<frameArr.length;row++){
+			for(var col=0;col<frameArr[row].length;col++){
+				if(Math.random() > percentVisible)
+					frameArr[row][col] = " ";
+			}
+		}
+	};
+};
+
+Compositor.prototype.fadeIn = function(duration, callback){
+	var compositor = this;
+	var when_started = new Date();
+	if(duration === undefined)
+		duration = 500;
+	compositor.post_processor = function(frameArr){
+		var runningTime = (new Date()) - when_started;
+		var percentVisible = runningTime/duration;
+		if(percentVisible >= 1){
+			compositor.post_processor = null;
+			if(callback instanceof Function)
+				callback();
+		}
+		for(var row=0;row<frameArr.length;row++){
+			for(var col=0;col<frameArr[row].length;col++){
+				if(Math.random() > percentVisible)
+					frameArr[row][col] = " ";
+			}
+		}
+	};
+};
+
+
 var Sprite = function(){
 	this.image = "<   >";
 	this.map = "## ##";
@@ -214,7 +264,7 @@ Sprite.prototype.getMap = function(){
 
 var AnimatedSprite = function(sprite_data, options){
 	Sprite.call(this);
-	
+
 	this.image = jQuery.extend(true, [], sprite_data.states);
 	this.map = jQuery.extend(true, [], sprite_data.states);
 	
@@ -310,22 +360,23 @@ var Room = function(room_data){
 	this.gameObjects = [];
 
 	this.tiles = [];
+	this.defaultSpawnLoc = room_data.defaultSpawnLoc;
 	for(var row_i=0;row_i < room_data.tiles.length; row_i++){
 		var row = room_data.tiles[row_i];
 		this.tiles.push([]);
 		for(var col_i=0;col_i < row.length; col_i++){
 			var go_data = row[col_i];
-			var go = new GameObject(go_data);
-			go.y = row_i*TILE_HEIGHT;
-			go.x = col_i*TILE_WIDTH;
-			this.add(go);
-			this.tiles[row_i].push(go);
+			if(go_data !== undefined){
+				var go = new GameObject(gameObjects[go_data]);
+				go.y = row_i*TILE_HEIGHT;
+				go.x = col_i*TILE_WIDTH;
+				this.add(go);
+				this.tiles[row_i].push(go);
+			}
 		}
 	}
-	this.player = new Actor(room_data.players[0]);
 	if(room_data.hasOwnProperty('music'))
 		this.music = room_data.music;
-	this.add(this.player);
 };
 
 Room.prototype.add = function(gameObject){
@@ -361,7 +412,7 @@ Room.prototype.removeGameObject = function(go, x, y){
 }
 
 
-var sprites = {};
+var spriteObjects = {};
 var GameObject = function(game_object_data){
 	this.x = 0;
 	this.y = 0;
@@ -375,16 +426,16 @@ var GameObject = function(game_object_data){
 	this.mayExitDirections = [UP,DOWN,LEFT,RIGHT];
 
 	this.description = "";
-	
+
 	if(game_object_data !== undefined){
 		this.name = game_object_data.name;
 
-		if(sprites.hasOwnProperty(game_object_data.name)){
-			this.sprite = sprites[game_object_data.name];
+		if(spriteObjects.hasOwnProperty(game_object_data.name)){
+			this.sprite = spriteObjects[game_object_data.name];
 		}else{
-			this.sprite = new AnimatedSprite(game_object_data.sprite);
+			this.sprite = new AnimatedSprite(sprites[game_object_data.sprite]);
 			this.sprite.name = game_object_data.name;
-			sprites[game_object_data.name] = this.sprite;
+			spriteObjects[game_object_data.name] = this.sprite;
 		}
 
 		if(game_object_data.properties !== undefined){
@@ -420,6 +471,9 @@ GameObject.prototype.mayWalkOff = function(actor, x, y, toDirection){
 	return true;
 };
 
+GameObject.prototype.onEnter = function(actor){
+};
+
 GameObject.prototype.covers = function(x, y){
 	if( x >= this.x && x < this.x + this.width &&
 			y >= this.y && y < this.y + this.height){
@@ -434,11 +488,11 @@ GameObject.prototype.inspect = function(actor){
 
 
 var Actor = function(actor_data){
-	GameObject.call(this, actor_data.player);
-	
-	this.sprite = new AnimatedSprite(actor_data.player.sprite, {'autostart': false});
-	this.x = actor_data.location[0]*TILE_WIDTH;
-	this.y = actor_data.location[1]*TILE_HEIGHT;
+	GameObject.call(this, actor_data);
+
+	//this.sprite = new AnimatedSprite(sprites[actor_data.sprite], {'autostart': false});
+	this.x = 0;
+	this.y = 0;
 	
 	this.direction = DOWN;
 	
@@ -529,6 +583,7 @@ Actor.prototype.move = function(direction, _countdown){
 			setTimeout(function(){actor.move(direction, _countdown - 1)}, 30);
 		}else{  // base case
 			actor.setMoving(false);
+			this.room.objectAt(this.x, this.y).onEnter(this);
 		}
 	}
 };
@@ -602,6 +657,12 @@ Actor.prototype.inspect = function(){
 		}
 	}
 };
+
+Actor.prototype.enterRoom = function(room){
+	this.x = room.defaultSpawnLoc[0]*TILE_WIDTH;
+	this.y = room.defaultSpawnLoc[1]*TILE_HEIGHT;
+};
+
 
 var Game = function(canvasEl, game_data){
 	this.modes = game_data.modes;
@@ -679,7 +740,7 @@ Game.prototype.switchMode = function(modeName, params){
 };
 
 var World = function(world_data, game){
-
+	this.game = game;
 	if(world_data === undefined){
 		world_data = {
 			name:"New World",
@@ -688,33 +749,32 @@ var World = function(world_data, game){
 					name:"Room1",
 					tiles: [
 					],
-					players: [{
-						player: {
-							name:"player",
-							sprite: {
-								states: [{
-									frames: [
-										"   ___    \n  /mmm\\   \n  \\@,@/   \n q mmm p  \n   n n    \n",
-									],
-									frameRate: 1.5,
-								}]
-							}, 
-						}, 
-						location: [0,0]
+					defaultSpawnLoc: [0,0]
+				},
+			],
+			player: {
+				name:"player",
+				sprite: {
+					states: [{
+						frames: [
+							"   ___    \n  /mmm\\   \n  \\@,@/   \n q mmm p  \n   n n    \n",
+						],
+						frameRate: 1.5,
 					}]
 				},
-			]
+			}
 		};
 	}
-	this.room = new Room(world_data.rooms[0]);
-	this.player = this.room.player;
+	
+	this.data = world_data;
+	this.player = new Actor(gameObjects[world_data.player]);
+	this.player.world = this;
+	this.setRoomNow(world_data.rooms[0].name);
 	if(this.room.hasOwnProperty('music'))
 		this.music = new AudioLoop(this.room.music);
 	else
 		this.music = undefined;
 	
-	this.game = game;
-	this.player.world = this;
 	
 	this.hud = new HUD(this, game);
 };
@@ -725,14 +785,47 @@ World.prototype.draw = function(compositor){
 
 	compositor.clearFrame();
 	for(var i=0; i < this.room.gameObjects.length;i++){
-		compositor.add(
-			this.room.gameObjects[i].sprite.getImage(),
-			this.room.gameObjects[i].sprite.getMap(),
-			this.room.gameObjects[i].x - viewport_x,
-			this.room.gameObjects[i].y - viewport_y
-		);
+		if(this.room.gameObjects[i].x - viewport_x >= 0 - TILE_WIDTH &&
+		this.room.gameObjects[i].x - viewport_x < SCREEN_WIDTH &&
+		this.room.gameObjects[i].y - viewport_y >=0 - TILE_HEIGHT &&
+		this.room.gameObjects[i].y - viewport_y < SCREEN_HEIGHT)
+			compositor.add(
+				this.room.gameObjects[i].sprite.getImage(),
+				this.room.gameObjects[i].sprite.getMap(),
+				this.room.gameObjects[i].x - viewport_x,
+				this.room.gameObjects[i].y - viewport_y
+			);
 	}
 	this.hud.draw(compositor);
+};
+
+// set the current room (Immediately -- see setRoom for transitions)
+World.prototype.setRoomNow = function(roomName){
+	var world = this;
+	for(var i=0;i<world.data.rooms.length;i++){
+		if(world.data.rooms[i].name === roomName){
+			world.room = new Room(world.data.rooms[i]);
+			world.room.add(world.player);
+			world.player.enterRoom(world.room);
+			return;
+		}
+	}
+};
+
+// Transition into a room
+World.prototype.setRoom = function(roomName){
+	var world = this;
+	disableInput = true; // disable all input for transition
+	world.game.compositor.fadeOut(500, function(){
+		for(var i=0;i<world.data.rooms.length;i++){
+			if(world.data.rooms[i].name === roomName){
+				world.setRoomNow(roomName);
+			}
+		}
+		world.game.compositor.fadeIn(500, function(){
+			disableInput = false;
+		});
+	});
 };
 
 World.prototype.handleInput = function(key){
@@ -969,7 +1062,7 @@ var TitleScreen = function(data, game){
 	this.objects = [];
 	for(var i=0;i<this.data.objects.length;i++){
 		this.objects.push({
-			'gameObject': new GameObject(this.data.objects[i].gameObject),
+			'gameObject': new GameObject(gameObjects[this.data.objects[i].gameObject]),
 			'location': this.data.objects[i].location,
 		});
 	}
@@ -1011,6 +1104,7 @@ TitleScreen.prototype.onExitMode = function(){
 }
 
 
+var disableInput = false;
 // if WASD is down, mash move every 100ms (so we have regular continued movement)
 var keyPressers = {};
 
@@ -1029,10 +1123,10 @@ $(document).keydown(function(event){
 				return;
 			}
             //send gameHandleInput movement related keycode
-			game.handleInput(event.keyCode);
+			if(!disableInput)game.handleInput(event.keyCode);
             
 			if(game.repeatPressMovementKeys)
-				keyPressers[event.keyCode] = setInterval(function(){game.handleInput(event.keyCode);}, 100);
+				keyPressers[event.keyCode] = setInterval(function(){if(!disableInput)game.handleInput(event.keyCode);}, 100);
 			else
 				keyPressers[event.keyCode] = true;
 			break;
@@ -1041,7 +1135,7 @@ $(document).keydown(function(event){
 				return;
 			}
             // give game handleInput anyway?
-			game.handleInput(event.keyCode);
+			if(!disableInput)game.handleInput(event.keyCode);
 			keyPressers[event.keyCode] = true;
 			break;
 	}
