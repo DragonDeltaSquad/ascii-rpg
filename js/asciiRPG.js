@@ -141,6 +141,7 @@ var Compositor = function(canvasElement){
 	this.el = canvasElement;
 	this.clearFrame();
 	this.textOverlays = [];
+	this.post_processor = null;
 };
 
 Compositor.prototype.render = function(){
@@ -152,6 +153,9 @@ Compositor.prototype.render = function(){
 		ctx.font = "16.6px Courier New";
 		ctx.fillStyle = "black";
 		ctx.textAlign = "left";
+		
+		if(this.post_processor !== null)
+			this.post_processor(this.frameArr);
 		
 		var lines = [];
 		for (var i = 0; i < this.frameArr.length; ++i) {
@@ -166,6 +170,7 @@ Compositor.prototype.render = function(){
 			var textObj = this.textOverlays[t];
 			fillTextMultiLine(ctx, textObj.text.split('\n'), textObj.x*9.86, 13 + textObj.y*20.5 );
 		}
+		
 };
 
 Compositor.prototype.clearFrame = function(){
@@ -198,6 +203,51 @@ Compositor.prototype.addText = function(text, x, y){
 		'y': y,
 	});
 };
+
+Compositor.prototype.fadeOut = function(duration, callback){
+	var compositor = this;
+	var when_started = new Date();
+	if(duration === undefined)
+		duration = 500;
+	compositor.post_processor = function(frameArr){
+		var runningTime = (new Date()) - when_started;
+		var percentVisible = 1 - runningTime/duration;
+		if(percentVisible <= 0){
+			compositor.post_processor = null;
+			if(callback instanceof Function)
+				callback();
+		}
+		for(var row=0;row<frameArr.length;row++){
+			for(var col=0;col<frameArr[row].length;col++){
+				if(Math.random() > percentVisible)
+					frameArr[row][col] = " ";
+			}
+		}
+	};
+};
+
+Compositor.prototype.fadeIn = function(duration, callback){
+	var compositor = this;
+	var when_started = new Date();
+	if(duration === undefined)
+		duration = 500;
+	compositor.post_processor = function(frameArr){
+		var runningTime = (new Date()) - when_started;
+		var percentVisible = runningTime/duration;
+		if(percentVisible >= 1){
+			compositor.post_processor = null;
+			if(callback instanceof Function)
+				callback();
+		}
+		for(var row=0;row<frameArr.length;row++){
+			for(var col=0;col<frameArr[row].length;col++){
+				if(Math.random() > percentVisible)
+					frameArr[row][col] = " ";
+			}
+		}
+	};
+};
+
 
 var Sprite = function(){
 	this.image = "<   >";
@@ -316,11 +366,13 @@ var Room = function(room_data){
 		this.tiles.push([]);
 		for(var col_i=0;col_i < row.length; col_i++){
 			var go_data = row[col_i];
-			var go = new GameObject(gameObjects[go_data]);
-			go.y = row_i*TILE_HEIGHT;
-			go.x = col_i*TILE_WIDTH;
-			this.add(go);
-			this.tiles[row_i].push(go);
+			if(go_data !== undefined){
+				var go = new GameObject(gameObjects[go_data]);
+				go.y = row_i*TILE_HEIGHT;
+				go.x = col_i*TILE_WIDTH;
+				this.add(go);
+				this.tiles[row_i].push(go);
+			}
 		}
 	}
 	if(room_data.hasOwnProperty('music'))
@@ -688,6 +740,7 @@ Game.prototype.switchMode = function(modeName, params){
 };
 
 var World = function(world_data, game){
+	this.game = game;
 	if(world_data === undefined){
 		world_data = {
 			name:"New World",
@@ -716,13 +769,12 @@ var World = function(world_data, game){
 	this.data = world_data;
 	this.player = new Actor(gameObjects[world_data.player]);
 	this.player.world = this;
-	this.setRoom(world_data.rooms[0].name);
+	this.setRoomNow(world_data.rooms[0].name);
 	if(this.room.hasOwnProperty('music'))
 		this.music = new AudioLoop(this.room.music);
 	else
 		this.music = undefined;
 	
-	this.game = game;
 	
 	this.hud = new HUD(this, game);
 };
@@ -747,16 +799,33 @@ World.prototype.draw = function(compositor){
 	this.hud.draw(compositor);
 };
 
-World.prototype.setRoom = function(roomName){
-	for(var i=0;i<this.data.rooms.length;i++){
-		if(this.data.rooms[i].name === roomName){
-			this.room = new Room(this.data.rooms[i]);
-			this.room.add(this.player);
-			this.player.enterRoom(this.room);
+// set the current room (Immediately -- see setRoom for transitions)
+World.prototype.setRoomNow = function(roomName){
+	var world = this;
+	for(var i=0;i<world.data.rooms.length;i++){
+		if(world.data.rooms[i].name === roomName){
+			world.room = new Room(world.data.rooms[i]);
+			world.room.add(world.player);
+			world.player.enterRoom(world.room);
 			return;
 		}
 	}
-	console.log("cant find " + roomName);
+};
+
+// Transition into a room
+World.prototype.setRoom = function(roomName){
+	var world = this;
+	disableInput = true; // disable all input for transition
+	world.game.compositor.fadeOut(500, function(){
+		for(var i=0;i<world.data.rooms.length;i++){
+			if(world.data.rooms[i].name === roomName){
+				world.setRoomNow(roomName);
+			}
+		}
+		world.game.compositor.fadeIn(500, function(){
+			disableInput = false;
+		});
+	});
 };
 
 World.prototype.handleInput = function(key){
@@ -1035,6 +1104,7 @@ TitleScreen.prototype.onExitMode = function(){
 }
 
 
+var disableInput = false;
 // if WASD is down, mash move every 100ms (so we have regular continued movement)
 var keyPressers = {};
 
@@ -1053,10 +1123,10 @@ $(document).keydown(function(event){
 				return;
 			}
             //send gameHandleInput movement related keycode
-			game.handleInput(event.keyCode);
+			if(!disableInput)game.handleInput(event.keyCode);
             
 			if(game.repeatPressMovementKeys)
-				keyPressers[event.keyCode] = setInterval(function(){game.handleInput(event.keyCode);}, 100);
+				keyPressers[event.keyCode] = setInterval(function(){if(!disableInput)game.handleInput(event.keyCode);}, 100);
 			else
 				keyPressers[event.keyCode] = true;
 			break;
@@ -1065,7 +1135,7 @@ $(document).keydown(function(event){
 				return;
 			}
             // give game handleInput anyway?
-			game.handleInput(event.keyCode);
+			if(!disableInput)game.handleInput(event.keyCode);
 			keyPressers[event.keyCode] = true;
 			break;
 	}

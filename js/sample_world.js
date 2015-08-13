@@ -203,12 +203,24 @@ var sprites = {
 	portal: {
 		states:[
 			{frames: [
-				"VVVVVVVVVV\n"+
-				">>VVVVVV<<\n"+
-				">>>----<<<\n"+
-				">>^^^^^^<<\n"+
-				"^^^^^^^^^^\n"
-			], frameRate: 1},
+				"   V  V   \n"+
+				"          \n"+
+				">  >  <  <\n"+
+				"          \n"+
+				"   ^  ^   \n",
+				
+				"          \n"+
+				"   V  V   \n"+
+				" >      < \n"+
+				"   ^  ^   \n"+
+				"          \n",
+				
+				"          \n"+
+				"          \n"+
+				"  >V^V^<  \n"+
+				"          \n"+
+				"          \n",
+			], frameRate: 3},
 		],
 	},
 	start: {
