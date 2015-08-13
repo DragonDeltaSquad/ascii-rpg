@@ -1,0 +1,13 @@
+Revision 1
+-----------
+* Added ASCII rendering engine
+* Added Character and User controls
+* Added Game Modes (Title Screen, World, etc)
+* Added HUD
+
+Revision 2
+-----------
+* Integrated maze.js for auto generated maze room
+* Added portals for traveling between rooms
+* Optimized Rendering engine for large rooms
+* Added Compositor transitions
