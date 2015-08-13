@@ -310,6 +310,7 @@ var Room = function(room_data){
 	this.gameObjects = [];
 
 	this.tiles = [];
+	this.defaultSpawnLoc = room_data.defaultSpawnLoc;
 	for(var row_i=0;row_i < room_data.tiles.length; row_i++){
 		var row = room_data.tiles[row_i];
 		this.tiles.push([]);
@@ -322,10 +323,8 @@ var Room = function(room_data){
 			this.tiles[row_i].push(go);
 		}
 	}
-	this.player = new Actor(room_data.actors[0]);
 	if(room_data.hasOwnProperty('music'))
 		this.music = room_data.music;
-	this.add(this.player);
 };
 
 Room.prototype.add = function(gameObject){
@@ -420,6 +419,9 @@ GameObject.prototype.mayWalkOff = function(actor, x, y, toDirection){
 	return true;
 };
 
+GameObject.prototype.onEnter = function(actor){
+};
+
 GameObject.prototype.covers = function(x, y){
 	if( x >= this.x && x < this.x + this.width &&
 			y >= this.y && y < this.y + this.height){
@@ -434,11 +436,11 @@ GameObject.prototype.inspect = function(actor){
 
 
 var Actor = function(actor_data){
-	GameObject.call(this, gameObjects[actor_data.gameObject]);
+	GameObject.call(this, actor_data);
 
 	//this.sprite = new AnimatedSprite(sprites[actor_data.sprite], {'autostart': false});
-	this.x = actor_data.location[0]*TILE_WIDTH;
-	this.y = actor_data.location[1]*TILE_HEIGHT;
+	this.x = 0;
+	this.y = 0;
 	
 	this.direction = DOWN;
 	
@@ -529,6 +531,7 @@ Actor.prototype.move = function(direction, _countdown){
 			setTimeout(function(){actor.move(direction, _countdown - 1)}, 30);
 		}else{  // base case
 			actor.setMoving(false);
+			this.room.objectAt(this.x, this.y).onEnter(this);
 		}
 	}
 };
@@ -602,6 +605,12 @@ Actor.prototype.inspect = function(){
 		}
 	}
 };
+
+Actor.prototype.enterRoom = function(room){
+	this.x = room.defaultSpawnLoc[0]*TILE_WIDTH;
+	this.y = room.defaultSpawnLoc[1]*TILE_HEIGHT;
+};
+
 
 var Game = function(canvasEl, game_data){
 	this.modes = game_data.modes;
@@ -679,7 +688,6 @@ Game.prototype.switchMode = function(modeName, params){
 };
 
 var World = function(world_data, game){
-
 	if(world_data === undefined){
 		world_data = {
 			name:"New World",
@@ -688,33 +696,33 @@ var World = function(world_data, game){
 					name:"Room1",
 					tiles: [
 					],
-					players: [{
-						player: {
-							name:"player",
-							sprite: {
-								states: [{
-									frames: [
-										"   ___    \n  /mmm\\   \n  \\@,@/   \n q mmm p  \n   n n    \n",
-									],
-									frameRate: 1.5,
-								}]
-							}, 
-						}, 
-						location: [0,0]
+					defaultSpawnLoc: [0,0]
+				},
+			],
+			player: {
+				name:"player",
+				sprite: {
+					states: [{
+						frames: [
+							"   ___    \n  /mmm\\   \n  \\@,@/   \n q mmm p  \n   n n    \n",
+						],
+						frameRate: 1.5,
 					}]
 				},
-			]
+			}
 		};
 	}
-	this.room = new Room(world_data.rooms[0]);
-	this.player = this.room.player;
+	
+	this.data = world_data;
+	this.player = new Actor(gameObjects[world_data.player]);
+	this.player.world = this;
+	this.setRoom(world_data.rooms[0].name);
 	if(this.room.hasOwnProperty('music'))
 		this.music = new AudioLoop(this.room.music);
 	else
 		this.music = undefined;
 	
 	this.game = game;
-	this.player.world = this;
 	
 	this.hud = new HUD(this, game);
 };
@@ -737,6 +745,18 @@ World.prototype.draw = function(compositor){
 			);
 	}
 	this.hud.draw(compositor);
+};
+
+World.prototype.setRoom = function(roomName){
+	for(var i=0;i<this.data.rooms.length;i++){
+		if(this.data.rooms[i].name === roomName){
+			this.room = new Room(this.data.rooms[i]);
+			this.room.add(this.player);
+			this.player.enterRoom(this.room);
+			return;
+		}
+	}
+	console.log("cant find " + roomName);
 };
 
 World.prototype.handleInput = function(key){

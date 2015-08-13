@@ -2,11 +2,11 @@ var sprites = {
 	item: {
 		states:[
 			{frames: [
-				"  ,-`'`-,   \n"+
-				" / |---| \\ \n"+
-				" | | * | | \n"+
-				" \\ |---| / \n"+
-				"  '-.,.-'  \n"
+				"  ,-`'`-, \n"+
+				" / |---| \\\n"+
+				" | | * | |\n"+
+				" \\ |---| /\n"+
+				"  '-.,.-' \n"
 			], frameRate: 1},
 		],
 	},
@@ -198,6 +198,17 @@ var sprites = {
 				"   `_|_   \n"+
 				"   |___|  \n"
 			], frameRate: 10},
+		],
+	},
+	portal: {
+		states:[
+			{frames: [
+				"VVVVVVVVVV\n"+
+				">>VVVVVV<<\n"+
+				">>>----<<<\n"+
+				">>^^^^^^<<\n"+
+				"^^^^^^^^^^\n"
+			], frameRate: 1},
 		],
 	},
 	start: {
@@ -439,6 +450,24 @@ var gameObjects = {
 			description: "It's Spinner.",
 		},
 	},
+	portalToMaze: {
+		name:"portalToMaze",
+		sprite: "portal",
+		properties: {
+			onEnter: function(actor){
+				actor.world.setRoom("maze");
+			}
+		}
+	},
+	portalToDemo: {
+		name:"portalToDemo",
+		sprite: "portal",
+		properties: {
+			onEnter: function(actor){
+				actor.world.setRoom("demo");
+			}
+		}
+	},
 	start: {
 		name:"start",
 		sprite: "start",
@@ -602,9 +631,19 @@ BagMode.prototype.onExitMode = function(){
 }
 
 
-
-var maze = Maze.generate(40, 5);
+var maze_width = 20;
+var maze_height = 20;
+var maze = Maze.generate(maze_width, maze_height);
 var mazeTiles = maze.toArray({true: "wall", false: "grass"});
+mazeTiles[0][Math.floor(maze_width/2)] = "wall";  // close maze to keep them in :D
+var last_row = [];
+for(var i=0;i<maze_width;i++){
+	if(i === Math.floor(maze_width/2)){
+		last_row.push("portalToDemo");
+	}else
+		last_row.push(undefined);
+}
+mazeTiles.push(last_row);
 for(var endpoint in maze.endpoints){
 	var rand = Math.random();
 	if(rand < .30)
@@ -621,17 +660,7 @@ var gameData = {
 				name:"ASCII RPG",
 				rooms: [
 					{
-						name:"Maze Room",
-						tiles: mazeTiles,
-						actors: [
-							{
-								gameObject: "player",
-								location: [20, -1],
-							}
-						]
-					},
-					{
-						name:"Demo level",
+						name:"demo",
 						tiles: [
 							["water","water","water","water","water","water","water","water","water","water","water","water","water","water","water","water"],
 							["water","water","water","water","water","water","water","water","water","water","water","water","water","water","water","water"],
@@ -643,7 +672,7 @@ var gameData = {
 							["water","water","water","water","ledgeL","empty","grass","ledgeR","water","ledgeL","spinner","ledgeRD","water","wall","water","water"],
 							["water","water","water","water","wall","empty","grass","empty","ledgeU","grass","ledgeR","water","water","wall","water","water"],
 							["water","water","water","water","wall","empty","grass","grass","ledgeD","empty","key","ledgeRU","water","wall","water","water"],
-							["water","water","water","water","wall","empty","grass","ledgeR","water","ledgeLD","ledgeD","ledgeRD","water","wall","water","water"],
+							["water","water","water","water","wall","portalToMaze","grass","ledgeR","water","ledgeLD","ledgeD","ledgeRD","water","wall","water","water"],
 							["water","water","water","water","wall","empty","grass","ledgeR","water","water","water","water","water","wall","water","water"],
 							["water","water","water","water","wall","empty","grass","ledgeR","water","water","water","water","water","wall","water","water"],
 							["water","water","water","water","wall","wall","wall","lock","wall","wall","wall","water","water","wall","water","water"],
@@ -659,14 +688,15 @@ var gameData = {
 							["water","water","water","water","water","water","water","water","water","water","water","water","water","water","water","water"],
 							["water","water","water","water","water","water","water","water","water","water","water","water","water","water","water","water"]
 						],
-						actors: [
-							{
-								gameObject: "player",
-								location: [5, 5],
-							}
-						]
+						defaultSpawnLoc: [5, 5],
 					},
-				]
+					{
+						name:"maze",
+						tiles: mazeTiles,
+						defaultSpawnLoc: [Math.floor(maze_width/2), 1],
+					},
+				],
+				player: "player",
 			},
 			title: {
 				//music: 'sounds/Intro_by_ALF.wav',
