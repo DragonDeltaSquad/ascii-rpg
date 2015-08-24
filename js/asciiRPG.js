@@ -553,8 +553,9 @@ Actor.prototype.move = function(direction, _countdown){
 		//change direction if needed immediately
 		if(this.direction !== direction){
 			this.setDirection(direction);
-			if(actor._wereMoving)
+			if(actor._wereMoving){
 				actor.move(direction, _countdown);
+			}
 			return;
 		}
 	
@@ -581,7 +582,12 @@ Actor.prototype.move = function(direction, _countdown){
 					this.x += 2;
 					break;
 			}
-			setTimeout(function(){actor.move(direction, _countdown - 1)}, 30);
+			var delay;
+			if(isPressed(KeyEvent.DOM_VK_SHIFT))
+				delay = 15;
+			else
+				delay = 30;
+			setTimeout(function(){actor.move(direction, _countdown - 1)}, delay);
 		}else{  // base case
 			actor.setMoving(false);
 			this.room.objectAt(this.x, this.y).onEnter(this);
@@ -1156,6 +1162,12 @@ var refirePressedKeys = function(){
 			firePressedKey(key);
 	}
 };
+
+var isPressed = function(key){
+	if(key in keyPressers && keyPressers[key] !== null)
+		return true;
+	return false;
+}
 
 $(document).keyup(function(event){
 	switch(event.keyCode){
