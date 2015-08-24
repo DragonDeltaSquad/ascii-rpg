@@ -497,6 +497,7 @@ var Actor = function(actor_data){
 	this.direction = DOWN;
 	
 	this._moving = false;
+	this._wereMoving = false;
 	
 	this.bag = {};
 	this.bag.items = [];
@@ -551,9 +552,9 @@ Actor.prototype.move = function(direction, _countdown){
 		
 		//change direction if needed immediately
 		if(this.direction !== direction){
-			actor.setMoving(true);
 			this.setDirection(direction);
-			setTimeout(function(){actor.setMoving(false);}, 10);
+			if(actor._wereMoving)
+				actor.move(direction, _countdown);
 			return;
 		}
 	
@@ -584,6 +585,9 @@ Actor.prototype.move = function(direction, _countdown){
 		}else{  // base case
 			actor.setMoving(false);
 			this.room.objectAt(this.x, this.y).onEnter(this);
+			actor._wereMoving = true;
+			refirePressedKeys(); // trigger another move after we finish this one
+			setTimeout(function(){actor._wereMoving = false}, 100)
 		}
 	}
 };
@@ -1108,7 +1112,7 @@ var disableInput = false;
 // if WASD is down, mash move every 100ms (so we have regular continued movement)
 var keyPressers = {};
 
-$(document).keydown(function(event){
+var firePressedKey = function(event){
 	switch(event.keyCode){
         case 87: //up 'w'
 		case 38: //up arrow
@@ -1126,7 +1130,9 @@ $(document).keydown(function(event){
 			if(!disableInput)game.handleInput(event.keyCode);
             
 			if(game.repeatPressMovementKeys)
-				keyPressers[event.keyCode] = setInterval(function(){if(!disableInput)game.handleInput(event.keyCode);}, 100);
+				keyPressers[event.keyCode] = setInterval(function(){
+					if(!disableInput)game.handleInput(event.keyCode);
+				}, 100);
 			else
 				keyPressers[event.keyCode] = true;
 			break;
@@ -1139,7 +1145,17 @@ $(document).keydown(function(event){
 			keyPressers[event.keyCode] = true;
 			break;
 	}
-});
+};
+
+$(document).keydown(firePressedKey);
+
+var refirePressedKeys = function(){
+	for(var key in keyPressers){
+		var kp = keyPressers[key];
+		if(kp !== null)
+			firePressedKey(key);
+	}
+};
 
 $(document).keyup(function(event){
 	switch(event.keyCode){
