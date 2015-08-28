@@ -1,9 +1,7 @@
-Revision 1
+Revision 3
 -----------
-* Added ASCII rendering engine
-* Added Character and User controls
-* Added Game Modes (Title Screen, World, etc)
-* Added HUD
+* Fixed turning motion to be more snappy
+* Added running control (Hold down shift).
 
 Revision 2
 -----------
@@ -11,3 +9,10 @@ Revision 2
 * Added portals for traveling between rooms
 * Optimized Rendering engine for large rooms
 * Added Compositor transitions
+
+Revision 1
+-----------
+* Added ASCII rendering engine
+* Added Character and User controls
+* Added Game Modes (Title Screen, World, etc)
+* Added HUD
