@@ -1,4 +1,4 @@
-REVISION = "2"
+REVISION = "3"
 
 // http://stackoverflow.com/a/21574562/4187005
 function fillTextMultiLine(ctx, text, x, y) {
