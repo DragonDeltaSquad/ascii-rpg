@@ -187,10 +187,10 @@ Compositor.prototype.clearFrame = function(){
 	}
 	this.textOverlays = [];
 };
-
+/*
 Compositor.prototype.add = function(content, map, x, y){
 	this.frame = layerText(this.frame, content, map, x, y);
-};
+};*/
 
 Compositor.prototype.add = function(content, map, x, y){
 	layerText(this.frameArr, content, map, x, y);

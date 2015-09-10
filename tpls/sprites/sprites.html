@@ -1,36 +1,9 @@
 <html>
 <head>
-<title> Pokemon Ash Key Sprites</title>
+<title>Sprites</title>
 <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-<script src="../asciiRPG.js"></script>
+<script src="../../js/asciiRPG.js"></script>
 <script>
-	/*var sprites = ['blank', 'grass', 'player'];
-	var sprite;
-	SCREEN_WIDTH = 10;
-	SCREEN_HEIGHT = 5;
-	SCREEN_PX_WIDTH = 100;
-	SCREEN_PX_HEIGHT = 100;
-
-	$(function(){
-		for(var sprite_i=0;sprite_i<sprites.length;sprite_i++){
-			var name = sprites[sprite_i];
-			var spriteSheet;
-			
-			$.get(name + ".txt", function(response){
-				spriteSheet = response;
-			}).then(function(){
-				sprite = parseSpriteSheet(spriteSheet);
-				
-				
-				var comp = new Compositor($('#main')[0]);
-				comp.clearFrame();
-				comp.add(sprite[0][0], sprite[0][0], 0, 0);
-				comp.render();
-				var img = $('#main')[0].toDataURL();
-				$('body').append("<img src='"+img+"' />");
-			});
-		}
-	});*/
 	var sprites = ['player', 'grass', 'blank'];
 	var sprite;
 	SCREEN_WIDTH = 10;
@@ -54,7 +27,7 @@
 				spriteSheet = response;
 			}).then(function(){
 				sprite = parseSpriteSheet(spriteSheet);
-				comp.add(sprite[0][0], sprite[0][0], 0, sprite_index_counter*5);
+				comp.add(sprite[0][0].split('\n'), sprite[0][0].split('\n'), 0, sprite_index_counter*5);
 				sprite_index_counter++;
 				if(sprite_i == sprites.length - 1){
 					comp.render();
@@ -67,8 +40,14 @@
 	});
 	
 </script>
+<style>
+img {
+	border: 1px solid black;
+}
+</style>
 </head>
 <body>
 	<canvas id="main"></canvas>
+	Right Click and select Save Image As<br>
 </body>
 </html>
