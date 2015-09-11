@@ -357,6 +357,7 @@ AnimatedSprite.prototype.stop = function(){
 
 
 var Room = function(room_data){
+
 	this.gameObjects = [];
 
 	this.tiles = [];
@@ -810,14 +811,28 @@ World.prototype.draw = function(compositor){
 };
 
 // set the current room (Immediately -- see setRoom for transitions)
-World.prototype.setRoomNow = function(roomName){
+World.prototype.setRoomNow = function(roomName, callback){
 	var world = this;
 	for(var i=0;i<world.data.rooms.length;i++){
 		if(world.data.rooms[i].name === roomName){
-			world.room = new Room(world.data.rooms[i]);
-			world.room.add(world.player);
-			world.player.enterRoom(world.room);
-			return;
+			var room_data = world.data.rooms[i];
+			console.log(room_data);
+			if(room_data.hasOwnProperty('url')){ // lazy load
+				var current_room_i = i;
+				$.get(room_data.url, function(tmxData){
+					world.data.rooms[current_room_i] = tmxToRoomData(tmxData);
+					world.data.rooms[current_room_i].name = roomName;
+					world.setRoomNow(roomName);
+					if(callback)callback();
+				});
+				return;
+			}else{ // we have the data, don't lazy load
+				world.room = new Room(room_data);
+				world.room.add(world.player);
+				world.player.enterRoom(world.room);
+				if(callback)callback();
+				return;
+			}
 		}
 	}
 };
@@ -826,16 +841,34 @@ World.prototype.setRoomNow = function(roomName){
 World.prototype.setRoom = function(roomName){
 	var world = this;
 	disableInput = true; // disable all input for transition
-	world.game.compositor.fadeOut(500, function(){
-		for(var i=0;i<world.data.rooms.length;i++){
-			if(world.data.rooms[i].name === roomName){
-				world.setRoomNow(roomName);
-			}
-		}
+	var fadeIn = function(){
 		world.game.compositor.fadeIn(500, function(){
 			disableInput = false;
 		});
+	};
+	world.game.compositor.fadeOut(500, function(){
+		var foundRoom = false;
+		for(var i=0;i<world.data.rooms.length;i++){
+			if(world.data.rooms[i].name === roomName){
+				world.setRoomNow(roomName, fadeIn);
+				foundRoom = true;
+			}
+		}
+		if(!foundRoom)
+			fadeIn();
 	});
+};
+
+World.prototype.addRoom = function(roomData){
+	var contains_room = false;
+	for(var i=0;i<this.data.rooms.length;i++){
+		if(this.data.rooms[i].name === roomData.name){
+			contains_room = true;
+		}
+	}
+	if(!contains_room)
+		var room = new Room(roomData);
+		this.data.rooms.push(roomData);
 };
 
 World.prototype.handleInput = function(key){
@@ -1211,6 +1244,32 @@ var parseSpriteSheet = function(imageString){
 		}
 	}
 	return states;
+};
+
+var tmxToRoomData = function(tmxData){
+
+	var spriteNames = [undefined, "player", "grass", "empty"];
+
+	var tiles = [];
+	var layer = $(tmxData).find("layer[name='background']").eq(0);
+	var height = layer.attr("height");
+	var width = layer.attr("width");
+	for(var h=0;h<height;h++){
+		tiles.push([]);
+		for(var w=0;w<width;w++){
+			tiles[h].push(spriteNames[layer.find("tile").eq(h*width + w).attr("gid")]);
+		}
+	}
+	var spawnX = $(tmxData).find("objectgroup[name='spawn'] object:first").attr('x')/100;
+	var spawnY = $(tmxData).find("objectgroup[name='spawn'] object:first").attr('y')/100 - 1;
+	if(spawnX === undefined)spawnX = 0;
+	if(spawnY === undefined)spawnY = 0;
+	
+	return {
+		name: "tmx_room" + Math.random(),
+		tiles: tiles,
+		defaultSpawnLoc: [spawnX, spawnY],
+	};
 };
 
 var asciiRPG = {

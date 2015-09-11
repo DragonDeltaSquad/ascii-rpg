@@ -707,6 +707,10 @@ var gameData = {
 						tiles: mazeTiles,
 						defaultSpawnLoc: [Math.floor(maze_width/2), 1],
 					},
+					{
+						name:"tmx_room",
+						url: "\\test_sheet.tmx",
+					}
 				],
 				player: "player",
 			},
