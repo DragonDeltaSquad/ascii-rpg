@@ -3,40 +3,35 @@
 <title>Sprites</title>
 <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script src="../../js/asciiRPG.js"></script>
+<script src="../../js/sprites.js"></script>
 <script>
-	var sprites = ['player', 'grass', 'blank'];
 	var sprite;
-	SCREEN_WIDTH = 10;
-	SCREEN_HEIGHT = 5 * sprites.length;
-	SCREEN_PX_WIDTH = 100;
-	SCREEN_PX_HEIGHT = 100 * sprites.length;
+	var SCREEN_WIDTH = 10;
+	var SCREEN_HEIGHT = 5 * Object.keys(sprites).length;
+	var SCREEN_PX_WIDTH = 100;
+	var SCREEN_PX_HEIGHT = 100 * Object.keys(sprites).length;
 
-		var sprite_index_counter = 0;
-		var comp;
+	var sprite_index_counter = 0;
+	var comp;
 	$(function(){
 		$('#main').attr('width',SCREEN_PX_WIDTH);
 		$('#main').attr('height',SCREEN_PX_HEIGHT);
 		comp = new Compositor($('#main')[0]);
 		comp.clearFrame();
-		$(sprites).each(function(i,e){
-			var sprite_i = i;
-			var name = e;
-			var spriteSheet;
-			
-			$.get(name + ".txt", function(response){
-				spriteSheet = response;
-			}).then(function(){
-				sprite = parseSpriteSheet(spriteSheet);
-				comp.add(sprite[0][0].split('\n'), sprite[0][0].split('\n'), 0, sprite_index_counter*5);
+		for(var sprite_i=0; sprite_i<sprite_arr.length; sprite_i++){
+			var sprite = sprite_arr[sprite_i];
+			if(sprite.states[0].frames[0].split("\n").length === 6){
+				console.log(sprite_i);
+				comp.add(sprite.states[0].frames[0].split('\n'), sprite.states[0].frames[0].split('\n'), 0, sprite_index_counter*5);
 				sprite_index_counter++;
-				if(sprite_i == sprites.length - 1){
-					comp.render();
-					var img = $('#main')[0].toDataURL();
-					$('body').append("<img src='"+img+"' />");
-					$('#main').remove();
-				}
-			});
-		});
+			}
+		}
+		$('#main').attr('width',SCREEN_PX_WIDTH);
+		$('#main').attr('height',sprite_index_counter*100);
+		comp.render();
+		var img = $('#main')[0].toDataURL();
+		$('body').append("<img src='"+img+"' />");
+		$('#main').remove();
 	});
 	
 </script>

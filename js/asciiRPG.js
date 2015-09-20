@@ -1248,8 +1248,6 @@ var parseSpriteSheet = function(imageString){
 
 var tmxToRoomData = function(tmxData){
 
-	var spriteNames = [undefined, "player", "grass", "empty"];
-
 	var tiles = [];
 	var layer = $(tmxData).find("layer[name='background']").eq(0);
 	var height = layer.attr("height");
@@ -1257,7 +1255,7 @@ var tmxToRoomData = function(tmxData){
 	for(var h=0;h<height;h++){
 		tiles.push([]);
 		for(var w=0;w<width;w++){
-			tiles[h].push(spriteNames[layer.find("tile").eq(h*width + w).attr("gid")]);
+			tiles[h].push(sprite_arr[layer.find("tile").eq(h*width + w).attr("gid") - 1].name);
 		}
 	}
 	var spawnX = $(tmxData).find("objectgroup[name='spawn'] object:first").attr('x')/100;
