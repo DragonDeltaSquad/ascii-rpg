@@ -115,42 +115,58 @@ var gameObjects = {
 	ledgeR: {
 		name:"ledgeR",
 		sprite: "ledgeR",
-		properties: {},
+		properties: {
+			mayEnterDirections: [UP,DOWN,RIGHT],
+		},
 	},
 	ledgeL: {
 		name:"ledgeL",
 		sprite: "ledgeL",
-		properties: {},
+		properties: {
+			mayEnterDirections: [UP,DOWN,LEFT],
+		},
 	},
 	ledgeU: {
 		name:"ledgeU",
 		sprite: "ledgeU",
-		properties: {},
+		properties: {
+			mayEnterDirections: [UP,LEFT,RIGHT],
+		},
 	},
 	ledgeD: {
 		name:"ledgeD",
 		sprite: "ledgeD",
-		properties: {},
+		properties: {
+			mayEnterDirections: [DOWN,LEFT,RIGHT],
+		},
 	},
 	ledgeRD: {
 		name:"ledgeRD",
 		sprite: "ledgeRD",
-		properties: {},
+		properties: {
+			mayEnterDirections: [DOWN,RIGHT],
+		},
 	},
 	ledgeRU: {
 		name:"ledgeRU",
 		sprite: "ledgeRU",
-		properties: {},
+		properties: {
+			mayEnterDirections: [UP,RIGHT],
+		},
 	},
 	ledgeLU: {
 		name:"ledgeLU",
 		sprite: "ledgeLU",
-		properties: {},
+		properties: {
+			mayEnterDirections: [UP,LEFT],
+		},
 	},
 	ledgeLD: {
 		name:"ledgeLD",
 		sprite: "ledgeLD",
-		properties: {},
+		properties: {
+			mayEnterDirections: [DOWN,LEFT],
+		},
 	},
 	spinner: {
 		name:"spinner",
