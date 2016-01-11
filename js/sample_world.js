@@ -1,318 +1,3 @@
-var sprites = {
-	item: {
-		states:[
-			{frames: [
-				"  ,-`'`-, \n"+
-				" / |---| \\\n"+
-				" | | * | |\n"+
-				" \\ |---| /\n"+
-				"  '-.,.-' \n"
-			], frameRate: 1},
-		],
-	},
-	grass: {
-		states:[
-			{frames: [
-				", , , , , \n"+
-				" , , , , ,\n"+
-				", , , , , \n"+
-				" , , , , ,\n"+
-				", , , , , \n",
-				
-				", . , , . \n"+
-				" , . , , ,\n"+
-				", , , . , \n"+
-				" , . , , ,\n"+
-				", , , . , \n"
-			], frameRate: 1},
-		]
-	},
-	empty: {
-		states:[
-			{frames: [
-				"          \n"+
-				"          \n"+
-				"          \n"+
-				"          \n"+
-				"          \n"
-			], frameRate: 1},
-		]
-	},
-	wall: {
-		states:[
-			{frames: [
-				" /``````\\ \n"+
-				"|\\______/|\n"+
-				"|        |\n"+
-				"|        |\n"+
-				" \\______/ \n"
-			], frameRate: 1},
-		],
-	},
-	lock: {
-		states:[
-			{frames: [
-				" /``````\\ \n"+
-				"|\\------/|\n"+
-				"|  (  )  |\n"+
-				"|  /__\\  |\n"+
-				" \\______/ \n",
-			], frameRate: 1.5},
-		],
-	},
-	water: {
-		states:[
-			{frames: [
-				"      ;   \n"+
-				"       `.,\n"+
-				"`;,       \n"+
-				"  ;,      \n"+
-				"   `-..   \n",
-				
-				"   ;      \n"+
-				"    `.,   \n"+
-				"       `;,\n"+
-				",        ;\n"+
-				"`-..      \n",
-				
-				";         \n"+
-				" `.,      \n"+
-				"    `;,   \n"+
-				"      ;,  \n"+
-				".      `-.\n",
-			], frameRate: 1.5},
-		],
-	},
-	ledgeR: {
-		states:[
-			{frames: [
-				"         ;\n"+
-				"        .;\n"+
-				"         ;\n"+
-				"        .;\n"+
-				"        -;\n"
-			], frameRate: 1.5},
-		],
-	},
-	ledgeL: {
-		states:[
-			{frames: [
-				";         \n"+
-				";.        \n"+
-				";         \n"+
-				";.        \n"+
-				";-        \n"
-			], frameRate: 1.5},
-		],
-	},
-	ledgeU: {
-		states:[
-			{frames: [
-				"-,---.--,-\n"+
-				"          \n"+
-				"          \n"+
-				"          \n"+
-				"          \n"
-			], frameRate: 1.5},
-		],
-	},
-	ledgeD: {
-		states:[
-			{frames: [
-				"          \n"+
-				"          \n"+
-				"          \n"+
-				"          \n"+
-				"_;__;___;_\n"
-			], frameRate: 1.5},
-		],
-	},
-	ledgeRD: {
-		states:[
-			{frames: [
-				"         ;\n"+
-				"        .;\n"+
-				"         ;\n"+
-				"        .;\n"+
-				"_;__;___;;\n"
-			], frameRate: 1.5},
-		],
-	},
-	ledgeRU: {
-		states:[
-			{frames: [
-				"-,---.---;\n"+
-				"         ;\n"+
-				"         ;\n"+
-				"        .;\n"+
-				"        -;\n"
-			], frameRate: 1.5},
-		],
-	},
-	ledgeLU: {
-		states:[
-			{frames: [
-				";----.---;\n"+
-				";.        \n"+
-				";         \n"+
-				";.        \n"+
-				";-        \n"
-			], frameRate: 1.5},
-		],
-	},
-	ledgeLD: {
-		states:[
-			{frames: [
-				";         \n"+
-				";.        \n"+
-				";         \n"+
-				";.        \n"+
-				";;__;___;_\n"
-			], frameRate: 1.5},
-		],
-	},
-	spinner: {
-		states:[
-			{frames: [
-				"     ,    \n"+
-				"     ;    \n"+
-				"  ,;` `;, \n"+
-				"    _|_   \n"+
-				"   |___|  \n",
-				
-				"       ,  \n"+
-				"      ,'  \n"+
-				"  ``` ;,  \n"+
-				"    _|_ ` \n"+
-				"   |___|  \n",
-				
-				"          \n"+
-				"  `-  .-` \n"+
-				"    `;`   \n"+
-				"    _;_   \n"+
-				"   |___|  \n",
-				
-				"   ,      \n"+
-				"   ',     \n"+
-				"    ,;``` \n"+
-				"   `_|_   \n"+
-				"   |___|  \n"
-			], frameRate: 10},
-		],
-	},
-	portal: {
-		states:[
-			{frames: [
-				"   V  V   \n"+
-				"          \n"+
-				">  >  <  <\n"+
-				"          \n"+
-				"   ^  ^   \n",
-				
-				"          \n"+
-				"   V  V   \n"+
-				" >      < \n"+
-				"   ^  ^   \n"+
-				"          \n",
-				
-				"          \n"+
-				"          \n"+
-				"  >V^V^<  \n"+
-				"          \n"+
-				"          \n",
-			], frameRate: 3},
-		],
-	},
-	start: {
-		states:[
-			{frames: [
-				"Press any key.    \n",
-				"Press any key..   \n",
-				"Press any key...  \n",
-				"                  \n",
-			], frameRate: 2},
-		]
-	},
-	star: {
-		states:[
-			{frames: [
-				"          \n"+
-				"          \n"+
-				"          \n"+
-				"          \n"+
-				"          \n",
-				"          \n"+
-				"          \n"+
-				"     *    \n"+
-				"          \n"+
-				"          \n",
-				"          \n"+
-				"     |    \n"+
-				"   --*--  \n"+
-				"     |    \n"+
-				"          \n",
-				"     |    \n"+
-				"    \\|/   \n"+
-				" ----*----\n"+
-				"    /|\\   \n"+
-				"     |    \n",
-			], frameRate: 4},
-		]
-	},
-	title: {
-		states:[
-			{frames: [
-				"      ____   _____     ___   _   _      ____     ____       ___    \n" +
-				"     /    | /  ___|  /  __| | | | |    |  _  \\  |  _  \\   /  __|   \n" +
-				"    /  _  | | (_    |  /    | | | |    | | |  | | | |  | |  /      \n" +
-				"   /  /_| |  \\_ `,  | |     | | | |    | |/  /  | |_|  | | |  ____ \n" +
-				"  /   ___ |  __)  \\ |  \\__  | | | |    |  _ \\   | ____/  | | |_  _|\n" +
-				" /   /  | | |     | |     | | | | |    | | \\ \\  | |      |  \\__||  \n" +
-				"/___/   |_| |____/   \\____| |_| |_|    |_|  \\_\\ |_|       \\_____|  "
-			], frameRate: 1},
-		]
-	},
-	player: {
-		states:[
-			{
-				frames: [
-					"   ___    \n  /mmm\\   \n  \\@,@/   \n   Omm'   \n   ` n    \n",
-					"   ___    \n  /mmm\\   \n  \\@,@/   \n q mmm p  \n   n n    \n",
-					"   ___   \n  /mmm\\  \n  \\-.-/  \n  'mmO   \n   n `   \n",
-					"   ___    \n  /mmm\\   \n  \\@,@/   \n q mmm p  \n   n n    \n"
-				],
-				frameRate: 8
-			},
-			{
-				frames: [
-					"   ___    \n _/mmm\\   \n |6\\\\)/   \n  `mOn    \n  \\   b   \n",
-					"   ___    \n _/mmm\\   \n |6\\\\)/   \n  `mOn    \n   dd     \n",
-					"   ___   \n _/mmm\\  \n |-\\\\)/  \n  `mOn   \n  \\   b  \n",
-					"   ___    \n _/mmm\\   \n |6\\\\)/   \n  `mOn    \n   dd     \n"
-				],
-				frameRate: 8
-			},
-			{
-				frames: [
-					"   ___    \n  /mmm\\_  \n  \\(//6|  \n   nOm`   \n   d   /  \n",
-					"   ___    \n  /mmm\\_  \n  \\(//6|  \n   nOm`   \n    bb    \n",
-					"   ___   \n  /mmm\\_ \n  \\(//-| \n   nOm`  \n   d   / \n",
-					"   ___    \n  /mmm\\_  \n  \\(//6|  \n   nOm`   \n    bb    \n"
-				],
-				frameRate: 8
-			},
-			{
-				frames: [
-					"   ___    \n  /-_-\\   \n  \\mmm/   \n  dmOm    \n   ` ,    \n",
-					"   ___    \n  /-_-\\   \n  \\mmm/   \n   mOm    \n   , ,    \n",
-					"   ___   \n  /-_-\\  \n  \\mmm/  \n   mOmb  \n   , `   \n",
-					"   ___    \n  /-_-\\   \n  \\mmm/   \n   mOm    \n   , ,    \n"
-				], 
-				frameRate: 8
-			},
-		],
-	},
-};
 
 var gameObjects = {
 	grass: {
@@ -340,6 +25,19 @@ var gameObjects = {
 			collectible: true,
 			use: function(actor){
 				actor.world.hud.addMessage(actor.name + " used a Potion");
+				return true;
+			},
+			singleUse: true,
+		},
+	},
+	item: {
+		name:"item",
+		sprite: "item",
+		properties: {
+			solid:true,
+			collectible: true,
+			use: function(actor){
+				actor.world.hud.addMessage(actor.name + " used an item");
 				return true;
 			},
 			singleUse: true,
@@ -417,42 +115,58 @@ var gameObjects = {
 	ledgeR: {
 		name:"ledgeR",
 		sprite: "ledgeR",
-		properties: {},
+		properties: {
+			mayEnterDirections: [UP,DOWN,RIGHT],
+		},
 	},
 	ledgeL: {
 		name:"ledgeL",
 		sprite: "ledgeL",
-		properties: {},
+		properties: {
+			mayEnterDirections: [UP,DOWN,LEFT],
+		},
 	},
 	ledgeU: {
 		name:"ledgeU",
 		sprite: "ledgeU",
-		properties: {},
+		properties: {
+			mayEnterDirections: [UP,LEFT,RIGHT],
+		},
 	},
 	ledgeD: {
 		name:"ledgeD",
 		sprite: "ledgeD",
-		properties: {},
+		properties: {
+			mayEnterDirections: [DOWN,LEFT,RIGHT],
+		},
 	},
 	ledgeRD: {
 		name:"ledgeRD",
 		sprite: "ledgeRD",
-		properties: {},
+		properties: {
+			mayEnterDirections: [DOWN,RIGHT],
+		},
 	},
 	ledgeRU: {
 		name:"ledgeRU",
 		sprite: "ledgeRU",
-		properties: {},
+		properties: {
+			mayEnterDirections: [UP,RIGHT],
+		},
 	},
 	ledgeLU: {
 		name:"ledgeLU",
 		sprite: "ledgeLU",
-		properties: {},
+		properties: {
+			mayEnterDirections: [UP,LEFT],
+		},
 	},
 	ledgeLD: {
 		name:"ledgeLD",
 		sprite: "ledgeLD",
-		properties: {},
+		properties: {
+			mayEnterDirections: [DOWN,LEFT],
+		},
 	},
 	spinner: {
 		name:"spinner",
@@ -461,6 +175,15 @@ var gameObjects = {
 			solid:true,
 			description: "It's Spinner.",
 		},
+	},
+	portal: {
+		name:"portalToMaze",
+		sprite: "portal",
+		properties: {
+			onEnter: function(actor){
+				actor.world.setRoom("demo");
+			}
+		}
 	},
 	portalToMaze: {
 		name:"portalToMaze",
@@ -471,12 +194,12 @@ var gameObjects = {
 			}
 		}
 	},
-	portalToDemo: {
+	portalToTMXTest: {
 		name:"portalToDemo",
 		sprite: "portal",
 		properties: {
 			onEnter: function(actor){
-				actor.world.setRoom("demo");
+				actor.world.setRoom("tmx_test");
 			}
 		}
 	},
@@ -651,7 +374,7 @@ mazeTiles[0][Math.floor(maze_width/2)] = "wall";  // close maze to keep them in 
 var last_row = [];
 for(var i=0;i<maze_width;i++){
 	if(i === Math.floor(maze_width/2)){
-		last_row.push("portalToDemo");
+		last_row.push("portalToTMXTest");
 	}else
 		last_row.push(undefined);
 }
@@ -707,6 +430,14 @@ var gameData = {
 						tiles: mazeTiles,
 						defaultSpawnLoc: [Math.floor(maze_width/2), 1],
 					},
+					{
+						name:"tmx_room",
+						url: "\\test_sheet.tmx",
+					},
+					{
+						name:"tmx_test",
+						url: "\\tmx_test.tmx",
+					}
 				],
 				player: "player",
 			},
