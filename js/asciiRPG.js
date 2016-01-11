@@ -816,7 +816,6 @@ World.prototype.setRoomNow = function(roomName, callback){
 	for(var i=0;i<world.data.rooms.length;i++){
 		if(world.data.rooms[i].name === roomName){
 			var room_data = world.data.rooms[i];
-			console.log(room_data);
 			if(room_data.hasOwnProperty('url')){ // lazy load
 				var current_room_i = i;
 				$.get(room_data.url, function(tmxData){
@@ -1246,6 +1245,12 @@ var parseSpriteSheet = function(imageString){
 	return states;
 };
 
+/**
+TMX Assumptions
+one layer named 'background'
+one object group named 'spawn' that contains one object which
+	will be the spawn point for the room
+**/
 var tmxToRoomData = function(tmxData){
 
 	var tiles = [];
@@ -1255,11 +1260,19 @@ var tmxToRoomData = function(tmxData){
 	for(var h=0;h<height;h++){
 		tiles.push([]);
 		for(var w=0;w<width;w++){
-			tiles[h].push(sprite_arr[layer.find("tile").eq(h*width + w).attr("gid") - 1].name);
+			tiles[h].push(
+				sprite_arr[
+					layer.find("tile").eq(h*width + w).attr("gid") - 1
+				].name
+			);
 		}
 	}
-	var spawnX = $(tmxData).find("objectgroup[name='spawn'] object:first").attr('x')/100;
-	var spawnY = $(tmxData).find("objectgroup[name='spawn'] object:first").attr('y')/100 - 1;
+	var spawnX = $(tmxData).find(
+		"objectgroup[name='spawn'] object:first"
+	).attr('x')/100;
+	var spawnY = $(tmxData).find(
+		"objectgroup[name='spawn'] object:first"
+	).attr('y')/100 - 1;
 	if(spawnX === undefined)spawnX = 0;
 	if(spawnY === undefined)spawnY = 0;
 	

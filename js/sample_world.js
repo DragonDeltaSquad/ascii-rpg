@@ -30,6 +30,19 @@ var gameObjects = {
 			singleUse: true,
 		},
 	},
+	item: {
+		name:"item",
+		sprite: "item",
+		properties: {
+			solid:true,
+			collectible: true,
+			use: function(actor){
+				actor.world.hud.addMessage(actor.name + " used an item");
+				return true;
+			},
+			singleUse: true,
+		},
+	},
 	key: {
 		name:"key",
 		sprite:  "item",
@@ -147,6 +160,15 @@ var gameObjects = {
 			description: "It's Spinner.",
 		},
 	},
+	portal: {
+		name:"portalToMaze",
+		sprite: "portal",
+		properties: {
+			onEnter: function(actor){
+				actor.world.setRoom("demo");
+			}
+		}
+	},
 	portalToMaze: {
 		name:"portalToMaze",
 		sprite: "portal",
@@ -156,12 +178,12 @@ var gameObjects = {
 			}
 		}
 	},
-	portalToDemo: {
+	portalToTMXTest: {
 		name:"portalToDemo",
 		sprite: "portal",
 		properties: {
 			onEnter: function(actor){
-				actor.world.setRoom("demo");
+				actor.world.setRoom("tmx_test");
 			}
 		}
 	},
@@ -336,7 +358,7 @@ mazeTiles[0][Math.floor(maze_width/2)] = "wall";  // close maze to keep them in 
 var last_row = [];
 for(var i=0;i<maze_width;i++){
 	if(i === Math.floor(maze_width/2)){
-		last_row.push("portalToDemo");
+		last_row.push("portalToTMXTest");
 	}else
 		last_row.push(undefined);
 }
@@ -395,6 +417,10 @@ var gameData = {
 					{
 						name:"tmx_room",
 						url: "\\test_sheet.tmx",
+					},
+					{
+						name:"tmx_test",
+						url: "\\tmx_test.tmx",
 					}
 				],
 				player: "player",
