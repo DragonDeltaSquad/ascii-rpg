@@ -12,9 +12,16 @@ var destScriptsPath = 'dist/js';
     
     
 gulp.task('clean_dist', function () {
-  return del(['dist/*']);
+  try{
+    del(['dist/*']);
+    console.log("Cleaned old files");
+  }catch(e){
+    console.log("Could not clean old files");
+  }
+  return true;
 });
-gulp.task('copy_app', function () {
+
+gulp.task('copy_app', ['clean_dist'], function () {
     gulp
         .src(['html/*'])
         .pipe(gulp.dest('dist'))
@@ -27,41 +34,31 @@ gulp.task('copy_app', function () {
         .pipe(gulp.dest('dist'))
 });
 
-// from official recipe https://github.com/gulpjs/gulp/blob/master/docs/recipes/running-task-steps-per-folder.md
-function getFolders(dir) {
-    return fs.readdirSync(dir)
-      .filter(function(file) {
-        return fs.statSync(path.join(dir, file)).isDirectory();
-      });
-}
-
-gulp.task('compile_js', function() {
-   var folders = getFolders(srcScriptsPath);
-
-   var tasks = folders.map(function(folder) {
-      // concat into foldername.js
-      // write to output
-      // minify
-      // rename to folder.min.js
-      // write to output again
-      return gulp.src(path.join(srcScriptsPath, folder, '/**/*.js'))
-        .pipe(concat(folder + '.js'))
+gulp.task('compile_js', ['clean_dist'], function(){
+    gulp.src('js/*.js')
+        .pipe(uglify())
+        .pipe(gulp.dest(destScriptsPath));
+    return gulp
+        .src(['global.js',
+            'sound.js',
+            'compositor.js',
+            'sprite.js',
+            'animated_sprite.js',
+            'room.js',
+            'game_object.js',
+            'actor.js',
+            'game.js',
+            'world.js',
+            'hud.js',
+            'title_screen.js',
+            'importers.js',
+            'input.js'],
+            { cwd: 'js/asciiRPG/' })
+        .pipe(concat('asciiRPG.js'))
         .pipe(gulp.dest(destScriptsPath))
         .pipe(uglify())
-        .pipe(rename(folder + '.min.js'))
+        .pipe(rename('asciiRPG.min.js'))
         .pipe(gulp.dest(destScriptsPath));
-   });
-
-   // process all remaining files in scriptsPath root 
-   //  into main.js and main.min.js files
-   var root = gulp.src(path.join(srcScriptsPath, '/*.js'))
-        .pipe(concat('main.js'))
-        .pipe(gulp.dest(destScriptsPath))
-        .pipe(uglify())
-        .pipe(rename('main.min.js'))
-        .pipe(gulp.dest(destScriptsPath));
-
-   return merge(tasks, root);
 });
 
-gulp.task('default', ['clean_dist', 'copy_app','compile_js']);
+gulp.task('default', ['copy_app','compile_js']);
