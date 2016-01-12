@@ -360,10 +360,10 @@ BagMode.prototype.onEnterMode = function(params){
 			this.selectedItem = -1;
 	}else
 		this.selectedCategory = -1;
-}
+};
 
 BagMode.prototype.onExitMode = function(){
-}
+};
 
 
 var maze_width = 20;
@@ -381,9 +381,9 @@ for(var i=0;i<maze_width;i++){
 mazeTiles.push(last_row);
 for(var endpoint in maze.endpoints){
 	var rand = Math.random();
-	if(rand < .30)
+	if(rand < 0.30)
 		mazeTiles[maze.endpoints[endpoint][1]][maze.endpoints[endpoint][0]] = "potion";	
-	else if(rand < .6)
+	else if(rand < 0.6)
 		mazeTiles[maze.endpoints[endpoint][1]][maze.endpoints[endpoint][0]] = "spinner";	
 	else
 		mazeTiles[maze.endpoints[endpoint][1]][maze.endpoints[endpoint][0]] = "empty";
@@ -432,11 +432,11 @@ var gameData = {
 					},
 					{
 						name:"tmx_room",
-						url: "\\test_sheet.tmx",
+						url: "\\res\\test_sheet.tmx",
 					},
 					{
 						name:"tmx_test",
-						url: "\\tmx_test.tmx",
+						url: "\\res\\tmx_test.tmx",
 					}
 				],
 				player: "player",
