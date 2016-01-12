@@ -63,7 +63,7 @@ gulp.task('compile_js', ['clean_dist'], function(){
 });
 
 gulp.task('lint', function() {
-  return gulp.src('./dist/js/*.js')
+  return gulp.src('./js/**/*.js')
     .pipe(jshint())
     .pipe(jshint.reporter('default'));
 });

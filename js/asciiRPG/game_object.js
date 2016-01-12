@@ -70,4 +70,4 @@ GameObject.prototype.covers = function(x, y){
 
 GameObject.prototype.inspect = function(actor){
 		return this.description;
-}
+};

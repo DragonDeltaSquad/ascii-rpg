@@ -6,9 +6,9 @@ var sfx = {
 	selectChange: 'sounds/selectChange.wav',
 	unlock: 'sounds/select.wav',
 };
-var play = function(sound){
-	if(sfx.hasOwnProperty(sound)){
-		var sound = new Audio(sfx[sound]);
+var play = function(soundName){
+	if(sfx.hasOwnProperty(soundName)){
+		var sound = new Audio(sfx[soundName]);
 		sound.play();
 		return sound;
 	}
