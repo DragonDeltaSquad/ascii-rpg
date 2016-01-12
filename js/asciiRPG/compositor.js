@@ -31,14 +31,14 @@ function generateBox(width, height, fillChar){
 	for(var row=0;row<height;row++){
 		var line = "";
 		for(var col=0;col<width;col++){
-			if( (row == 0 && col == 0) ||
-					(row == height - 1 && col == width -1) ||
-					(row == 0 && col == width - 1) ||
-					(row == height - 1 && col == 0))
+			if( (row === 0 && col === 0) ||
+					(row === height - 1 && col === width -1) ||
+					(row === 0 && col === width - 1) ||
+					(row === height - 1 && col === 0))
 					line += "+";
-			else if(row == 0 || row == height-1)
+			else if(row === 0 || row === height-1)
 				line += "-";
-			else if(col == 0 || col == width - 1)
+			else if(col === 0 || col === width - 1)
 				line += "|";
 			else
 				line += fillChar;
@@ -69,12 +69,12 @@ function layerText(base, content, map, x, y){
 			var img_col = col - x;
 			if(img_row >= 0 && img_row < map.length &&
 				img_col >= 0 && img_col < map[0].length &&
-				map[img_row] != "" && 
+				map[img_row] !== "" && 
 				map[img_row][img_col] != " ")
 				base[row][col] = content[img_row][img_col];
 		}
 	}
-};
+}
 
 var Compositor = function(canvasElement){
 	this.el = canvasElement;

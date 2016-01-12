@@ -62,17 +62,18 @@ World.prototype.draw = function(compositor){
 // set the current room (Immediately -- see setRoom for transitions)
 World.prototype.setRoomNow = function(roomName, callback){
 	var world = this;
+    var loadTMXData = function(tmxData){
+        world.data.rooms[current_room_i] = tmxToRoomData(tmxData);
+        world.data.rooms[current_room_i].name = roomName;
+        world.setRoomNow(roomName);
+        if(callback)callback();
+    };
 	for(var i=0;i<world.data.rooms.length;i++){
 		if(world.data.rooms[i].name === roomName){
 			var room_data = world.data.rooms[i];
 			if(room_data.hasOwnProperty('url')){ // lazy load
 				var current_room_i = i;
-				$.get(room_data.url, function(tmxData){
-					world.data.rooms[current_room_i] = tmxToRoomData(tmxData);
-					world.data.rooms[current_room_i].name = roomName;
-					world.setRoomNow(roomName);
-					if(callback)callback();
-				});
+				$.get(room_data.url, loadTMXData);
 				return;
 			}else{ // we have the data, don't lazy load
 				world.room = new Room(room_data);
@@ -130,9 +131,9 @@ World.prototype.handleInput = function(key){
 World.prototype.onEnterMode = function(params){
 	if(this.music !== undefined)
 		this.music.play();
-}
+};
 
 World.prototype.onExitMode = function(){
 	if(this.music !== undefined)
 		this.music.pause();
-}
+};

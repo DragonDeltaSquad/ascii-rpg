@@ -11,7 +11,7 @@ var Game = function(canvasEl, game_data){
 				this.modes.title = new TitleScreen(this.modes.title, this);
 				break;
 			default:
-				this.modes[mode] = new this.modes[mode](this)
+				this.modes[mode] = new this.modes[mode](this);
 		}	
 	}
 	this.switchMode('title');
@@ -38,7 +38,7 @@ Game.prototype.run = function(){
 		gameFrame = 0;
 	}
 	
-	setTimeout(function(){g.run()}, 1000/actual_fps);
+	setTimeout(function(){g.run();}, 1000/actual_fps);
 };
 
 Game.prototype.handleInput = function(key){

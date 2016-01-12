@@ -52,7 +52,7 @@ var isPressed = function(key){
 	if(key in keyPressers && keyPressers[key] !== null)
 		return true;
 	return false;
-}
+};
 
 $(document).keyup(function(event){
 	switch(event.keyCode){

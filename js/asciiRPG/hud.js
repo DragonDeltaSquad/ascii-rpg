@@ -50,7 +50,7 @@ HUD.prototype.draw = function(compositor){
 	var hud = this;
 	// draw message/prompt box
 	if(this.displayQueue.length > 0 && this.message.trim() === ""){
-		var displayRequest = this.displayQueue.pop()
+		var displayRequest = this.displayQueue.pop();
 		this.message = displayRequest.message;
 		this.yesno.isUp = displayRequest.type === this.PROMPT;
 		if(this.yesno.isUp)
@@ -59,7 +59,7 @@ HUD.prototype.draw = function(compositor){
 				displayRequest.callback(value);
 				this.selectHandler = null;
 				this.isUp = false;
-			}
+			};
 	}
 
 	//3 chars padding either side with twice char size
@@ -68,7 +68,11 @@ HUD.prototype.draw = function(compositor){
 		var lines = str.split('\n');
 		var out = [];
 		for(var i=0;i<lines.length;i++)
-			out = out.concat(lines[i].match(new RegExp('.{1,' + charsPerLine + '}', 'g')))
+			out = out.concat(
+                lines[i].match(
+                    new RegExp('.{1,' + charsPerLine + '}', 'g')
+                )
+            );
 		return out.slice(0,3).join('\n');
 	}
 		
@@ -96,8 +100,8 @@ HUD.prototype.draw = function(compositor){
 };
 
 HUD.prototype.scrollMessage = function(){
-	var lines = this.message.split('\n')
-	lines.shift()
+	var lines = this.message.split('\n');
+	lines.shift();
 	this.message = lines.join('\n');
 };
 
@@ -141,11 +145,12 @@ HUD.prototype.handleInput = function(key){
 		case KeyEvent.DOM_VK_Q:
 			if(this.yesno.isUp){
 				this.yesno.handleInput(key);
-			}else if(this.message == "" && this.menuUp){
+			}else if(this.message === "" && this.menuUp){
 				this.menuUp = false;
 				play('menuDown');
 			}else
 				this.scrollMessage();
+            break;
 		default:
 			break;
 	}

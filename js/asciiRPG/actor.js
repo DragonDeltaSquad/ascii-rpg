@@ -41,16 +41,12 @@ Actor.prototype.canMove = function(direction){
 			switch(direction){
 				case UP:
 					return this.room.isAvailable(this, this.x, this.y - 5, direction);
-					break;
 				case DOWN:
 					return this.room.isAvailable(this, this.x, this.y + 5, direction);
-					break;
 				case LEFT:
 					return this.room.isAvailable(this, this.x - 10, this.y, direction);
-					break;
 				case RIGHT:
 					return this.room.isAvailable(this, this.x + 10, this.y, direction);
-					break;
 			}
 			return false;
 };
@@ -59,7 +55,7 @@ Actor.prototype.move = function(direction, _countdown){
 	// recursively move 1 tile for smooth transition
 
 	var actor = this;
-	if(!actor._moving || _countdown != undefined){
+	if(!actor._moving || _countdown !== undefined){
 		
 		
 		//change direction if needed immediately
@@ -99,13 +95,16 @@ Actor.prototype.move = function(direction, _countdown){
 				delay = 15;
 			else
 				delay = 30;
-			setTimeout(function(){actor.move(direction, _countdown - 1)}, delay);
+			setTimeout(
+                function(){actor.move(direction, _countdown - 1);},
+                delay
+            );
 		}else{  // base case
 			actor.setMoving(false);
 			this.room.objectAt(this.x, this.y).onEnter(this);
 			actor._wereMoving = true;
 			refirePressedKeys(); // trigger another move after we finish this one
-			setTimeout(function(){actor._wereMoving = false}, 100)
+			setTimeout(function(){actor._wereMoving = false;}, 100);
 		}
 	}
 };

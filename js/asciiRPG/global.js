@@ -1,4 +1,4 @@
-var REVISION = "4"
+var REVISION = "4";
 
 
 var SCREEN_WIDTH = 100;
@@ -30,7 +30,7 @@ var asciiRPG = {
 	load: function(canvasEl, game_data){
 			return new Game(canvasEl, game_data);
 	}
-}
+};
 
 // http://stackoverflow.com/a/1465409/4187005
 if (typeof KeyEvent == "undefined") {

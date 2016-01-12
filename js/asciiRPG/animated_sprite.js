@@ -1,17 +1,18 @@
 
 var AnimatedSprite = function(sprite_data, options){
-	Sprite.call(this);
+    Sprite.call(this);
+	var frame, state;
 
 	this.image = jQuery.extend(true, [], sprite_data.states);
 	this.map = jQuery.extend(true, [], sprite_data.states);
 	
-	for(var state=0;state<this.image.length;state++){
-		for(var frame=0;frame<this.image[state].frames.length;frame++){
+	for(state=0;state<this.image.length;state++){
+		for(frame=0;frame<this.image[state].frames.length;frame++){
 			this.image[state].frames[frame] = this.image[state].frames[frame].split('\n');
 		}
 	}
-	for(var state=0;state<this.map.length;state++){
-		for(var frame=0;frame<this.map[state].frames.length;frame++){
+	for(state=0;state<this.map.length;state++){
+		for(frame=0;frame<this.map[state].frames.length;frame++){
 			this.map[state].frames[frame] = this.map[state].frames[frame].split('\n');
 		}
 	}
@@ -52,8 +53,8 @@ AnimatedSprite.prototype.fromString = function(imageString, mapString){
 				states[Math.floor(row_i/TILE_HEIGHT)][i] += "\n";
 			}
 		}
-		for(var i=0;i<4;i++){
-			states[i][3] = states[i][1];
+		for(var j=0;j<4;j++){
+			states[j][3] = states[j][1];
 		}
 		return states;
 	};

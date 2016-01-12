@@ -35,15 +35,15 @@ TitleScreen.prototype.draw = function(compositor){
 
 TitleScreen.prototype.handleInput = function(key){
 	this.game.switchMode('world');
-	play('select')
+	play('select');
 };
 
 TitleScreen.prototype.onEnterMode = function(params){
 	if(this.music !== undefined)
 		this.music.play();
-}
+};
 
 TitleScreen.prototype.onExitMode = function(){
 	if(this.music !== undefined)
 		this.music.pause();
-}
+};

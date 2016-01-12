@@ -36,7 +36,8 @@ Room.prototype.isAvailable = function(actor, x, y, fromDirection){
 		}
 	}
 	return true;
-}
+};
+
 Room.prototype.objectAt = function(x, y){
 	for(var i=0;i<this.gameObjects.length;i++){
 		if(this.gameObjects[i].x == x && this.gameObjects[i].y == y){
@@ -44,7 +45,7 @@ Room.prototype.objectAt = function(x, y){
 		}
 	}
 	return null;
-}
+};
 
 Room.prototype.removeGameObject = function(go, x, y){
 	for(var i=0;i<this.gameObjects.length;i++){
@@ -53,4 +54,4 @@ Room.prototype.removeGameObject = function(go, x, y){
 		}
 	}
 	return null;
-}
+};
