@@ -1,0 +1,13 @@
+{
+  "name": "asciiRPG",
+  "description": "Text rendered 2d tile based game engine",
+  "dependencies": {
+    "del": "x.x.x",
+    "gulp": "3.9.x",
+    "gulp-concat": "x.x.x",
+    "gulp-rename": "x.x.x",
+    "gulp-uglify": "x.x.x",
+    "merge-stream": "x.x.x"
+  },
+  "engine": "node 0.12.7"
+}
