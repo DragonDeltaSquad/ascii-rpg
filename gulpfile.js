@@ -27,15 +27,6 @@ gulp.task('copy_app', function () {
         .pipe(gulp.dest('dist'))
 });
 
-gulp.task('compile_js', function() {
-    gulp.src(['js/*.js'])
-            .pipe(gulp.dest('./dist/js/'));
-    return gulp.src(['js/asciiRPG.js'])
-            .pipe(gp_concat('asciiRPG.js'))
-            .pipe(gp_uglify())
-            .pipe(gulp.dest('./dist/js/'));
-});
-
 // from official recipe https://github.com/gulpjs/gulp/blob/master/docs/recipes/running-task-steps-per-folder.md
 function getFolders(dir) {
     return fs.readdirSync(dir)
