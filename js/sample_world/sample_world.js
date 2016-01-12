@@ -432,11 +432,11 @@ var gameData = {
 					},
 					{
 						name:"tmx_room",
-						url: "\\test_sheet.tmx",
+						url: "\\res\\test_sheet.tmx",
 					},
 					{
 						name:"tmx_test",
-						url: "\\tmx_test.tmx",
+						url: "\\res\\tmx_test.tmx",
 					}
 				],
 				player: "player",
