@@ -11,8 +11,8 @@ var RIGHT = 3;
 var moves = ["up", "left", "down", "right"];
 
 Maze = function(width, height) {
-  if (typeof width === "undefined") {width = WIDTH;}
-  if (typeof height === "undefined") {height = HEIGHT;}
+  if (typeof width === "undefined") {width = WIDTH};
+  if (typeof height === "undefined") {height = HEIGHT};
   this.width = width;
   this.height = height;
   this.grid = this.init_array(true);
@@ -40,7 +40,7 @@ Maze.generate = function(width, height){
 		}
 
 		tries += 1;
-		if (((tries % 20) === 0)) {
+		if (((tries % 20) == 0)) {
 			//console.log(("ratio: " + min_ratio));
 		}
 
@@ -52,7 +52,7 @@ Maze.generate = function(width, height){
 
 Maze.prototype.init_array = function(value) {
   var arr, col, row;
-  if (typeof value === "undefined") {value = null;}
+  if (typeof value === "undefined") {value = null};
   arr = [];
   var _$tmp2_end = this.width;
   for (col = 0; col < _$tmp2_end; col++) {
@@ -241,9 +241,9 @@ Maze.prototype.queue_maze = function() {
 
 Maze.prototype.build_maze = function(x, y, depth) {
   var _$rapyd_tuple$_, move, no_inf, rev_move;
-  if (typeof x === "undefined") {x = null;}
-  if (typeof y === "undefined") {y = null;}
-  if (typeof depth === "undefined") {depth = 10;}
+  if (typeof x === "undefined") {x = null};
+  if (typeof y === "undefined") {y = null};
+  if (typeof depth === "undefined") {depth = 10};
   if (((!x) || (!y))) {
     x = parseInt((this.width / 2));
     y = 1;
@@ -252,7 +252,7 @@ Maze.prototype.build_maze = function(x, y, depth) {
   }
 
   while ((((((x < (this.width - 1)) && (x > 0)) && (y < (this.height - 1))) && (y > 0)) && (depth > 0))) {
-    if ((Math.floor(Math.random()) === 0)) {
+    if ((Math.floor(Math.random()) == 0)) {
       move = Math.floor((Math.random() * 4));
       rev_move = ((move + 2) % 4);
       no_inf = 0;
@@ -298,7 +298,7 @@ Maze.prototype.is_available_spot = function(pos, move) {
     return false;
   }
 
-  if (((((x === 0) || (x == (this.width - 1))) || (y === 0)) || (y == (this.height - 1)))) {
+  if (((((x == 0) || (x == (this.width - 1))) || (y == 0)) || (y == (this.height - 1)))) {
     return false;
   }
 
@@ -428,7 +428,7 @@ Maze.prototype.toArray = function(map){
 		}
 	}
 	return out;
-};
+}
 
 var average = function(arr) {
   return (sum(arr) / parseFloat(arr.length));
@@ -438,7 +438,7 @@ var std_dev = function(arr) {
   var a;
   a = average(arr);
   return Math.sqrt(average(map((function(x) {
-    return ((x - a) * (x - a));
+    ((x - a) * (x - a));
   }), arr)));
 };
 
